@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: arkam
+      MINIO_ROOT_PASSWORD: Arkam2004
+    command: server --console-address ":9001" /data
+
+  postgresql:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: arkam
+      POSTGRES_PASSWORD: Arkam2004
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:latest
+    restart: always
+    command: redis-server --port 6379 --protected-mode no --appendonly yes
+    ports:
+      - "6379:6379"
+
+
+volumes:
+  minio_data:
