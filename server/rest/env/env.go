@@ -1,7 +1,7 @@
 package env
 
 import (
-	"github.com/ArkamFahry/uploadnexus/server/common/errors"
+	"github.com/ArkamFahry/uploadnexus/server/rest/errors"
 	"github.com/spf13/viper"
 )
 
