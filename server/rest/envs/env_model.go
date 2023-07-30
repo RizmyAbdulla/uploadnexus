@@ -1,4 +1,4 @@
-package env
+package envs
 
 type Env struct {
 	AppName        string `json:"APP_NAME" mapstructure:"APP_NAME"`

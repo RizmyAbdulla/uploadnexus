@@ -1,4 +1,4 @@
-package env
+package envs
 
 import (
 	"github.com/ArkamFahry/uploadnexus/server/rest/errors"
@@ -12,7 +12,7 @@ func InitEnv() error {
 
 	viper.AutomaticEnv()
 	viper.SetConfigName("app")
-	viper.SetConfigType("env")
+	viper.SetConfigType("envs")
 	viper.AddConfigPath(".")
 	err = viper.ReadInConfig()
 	if err != nil {
