@@ -9,7 +9,7 @@ import (
 func (c *DatabaseClient) CreateApplication(ctx context.Context, application databaseentities.Application) error {
 	const Op errors.Op = "postgresql.CreateApplication"
 
-	query := "INSERT INTO applications (id, name, description, created_at, updated_at) VALUES (:id, :name, :description, :created_at)"
+	query := "INSERT INTO applications (id, name, description, created_at) VALUES (:id, :name, :description, :created_at)"
 
 	_, err := c.db.NamedExecContext(ctx, query, application)
 	if err != nil {
@@ -35,7 +35,7 @@ func (c *DatabaseClient) UpdateApplication(ctx context.Context, application data
 func (c *DatabaseClient) DeleteApplication(ctx context.Context, id string) error {
 	const Op errors.Op = "postgresql.DeleteApplication"
 
-	query := "DELETE FROM applications WHERE id = $id"
+	query := "DELETE FROM applications WHERE id = $1"
 
 	_, err := c.db.ExecContext(ctx, query, id)
 	if err != nil {
@@ -49,7 +49,7 @@ func (c *DatabaseClient) GetApplicationById(ctx context.Context, id string) (*da
 	const Op errors.Op = "postgresql.GetApplicationById"
 	var result databaseentities.Application
 
-	query := "SELECT id, name, description, created_at, updated_at FROM applications WHERE id = $id"
+	query := "SELECT id, name, description, created_at, updated_at FROM applications WHERE id = $1"
 
 	err := c.db.GetContext(ctx, &result, query, id)
 
@@ -63,7 +63,7 @@ func (c *DatabaseClient) GetApplicationByName(ctx context.Context, name string) 
 	const Op errors.Op = "postgresql.GetApplicationByName"
 	var result databaseentities.Application
 
-	query := "SELECT id, name, description, created_at, updated_at FROM applications WHERE name = $name"
+	query := "SELECT id, name, description, created_at, updated_at FROM applications WHERE name = $1"
 
 	err := c.db.GetContext(ctx, &result, query, name)
 	if err != nil {
