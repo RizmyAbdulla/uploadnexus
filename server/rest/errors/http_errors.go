@@ -1,15 +1,15 @@
 package errors
 
 type HttpError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Error   string `json:"error"`
+	Code  int         `json:"code"`
+	Error string      `json:"error"`
+	Data  interface{} `json:"data,omitempty"`
 }
 
-func NewHttpError(code int, message string, error string) *HttpError {
+func NewHttpError(code int, error string, data interface{}) *HttpError {
 	return &HttpError{
-		Code:    code,
-		Message: message,
-		Error:   error,
+		Code:  code,
+		Error: error,
+		Data:  data,
 	}
 }
