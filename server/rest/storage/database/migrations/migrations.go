@@ -20,7 +20,7 @@ func MigrateDatabase(migrationFiles embed.FS, migrationFolder string, databaseUr
 	if envs.EnvStoreInstance.GetEnv().DatabaseAutoMigrate {
 		d, err := iofs.New(migrationFiles, migrationFolder)
 		if err != nil {
-			return errors.E(Op, errors.Msg("failed to open migration files"), err)
+			return errors.NewError(Op, errors.Msg("failed to open migration files"), err)
 		}
 
 		m, err := migrate.NewWithSourceInstance("iofs", d, databaseUrl)
@@ -30,14 +30,14 @@ func MigrateDatabase(migrationFiles embed.FS, migrationFolder string, databaseUr
 
 		if err := m.Up(); err != nil {
 			if err.Error() == "no change" {
-				log.Info().Msg(errors.E(Op, errors.Msg("no database schema changes"), err).Error())
+				log.Info().Msg(errors.NewError(Op, errors.Msg("no database schema changes"), err).Error())
 				return nil
 			}
 			return err
 		}
-	}
 
-	log.Info().Msg(errors.E(Op, errors.Msg("database migration completed successfully"), nil).Error())
+		log.Info().Msg(errors.NewError(Op, errors.Msg("database migration completed successfully"), nil).Error())
+	}
 
 	return nil
 }
