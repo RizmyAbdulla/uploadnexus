@@ -13,6 +13,6 @@ func NewHealthService() *HealthService {
 	return &HealthService{}
 }
 
-func (h HealthService) GetHealth() string {
+func (s HealthService) GetHealth() string {
 	return "The api is health 💖💖💖"
 }
