@@ -1,8 +1,8 @@
-package databaseclient
+package databaseclients
 
 import (
 	"context"
-	"github.com/ArkamFahry/uploadnexus/server/rest/storage/entities/databaseentities"
+	"github.com/ArkamFahry/uploadnexus/server/rest/storage/database/databaseentities"
 )
 
 type DatabaseClient interface {
@@ -25,5 +25,5 @@ type DatabaseClient interface {
 	DeleteObjectReference(ctx context.Context, id string) error
 	GetObjectReferenceById(ctx context.Context, id string) (*databaseentities.ObjectReference, error)
 	GetObjectReferenceByName(ctx context.Context, name string) (*databaseentities.ObjectReference, error)
-	GetObjectReferences() (*[]databaseentities.ObjectReference, error)
+	GetObjectReferences(ctx context.Context) (*[]databaseentities.ObjectReference, error)
 }
