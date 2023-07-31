@@ -18,6 +18,7 @@ type DatabaseClient interface {
 	DeleteBucketReference(ctx context.Context, id string) error
 	GetBucketReferenceById(ctx context.Context, id string) (*databaseentities.BucketReference, error)
 	GetBucketReferenceByName(ctx context.Context, name string) (*databaseentities.BucketReference, error)
+	GetBucketReferencesByApplicationId(ctx context.Context, applicationId string) (*[]databaseentities.BucketReference, error)
 	GetBucketReferences(ctx context.Context) (*[]databaseentities.BucketReference, error)
 
 	CreateObjectReference(ctx context.Context, objectReference databaseentities.ObjectReference) error
@@ -25,5 +26,6 @@ type DatabaseClient interface {
 	DeleteObjectReference(ctx context.Context, id string) error
 	GetObjectReferenceById(ctx context.Context, id string) (*databaseentities.ObjectReference, error)
 	GetObjectReferenceByName(ctx context.Context, name string) (*databaseentities.ObjectReference, error)
+	GetObjectReferencesByBucketId(ctx context.Context, bucketId string) (*[]databaseentities.BucketReference, error)
 	GetObjectReferences(ctx context.Context) (*[]databaseentities.ObjectReference, error)
 }
