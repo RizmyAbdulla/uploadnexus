@@ -16,7 +16,7 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("Operation: %v, Message: %v, Error: %v", e.Op, e.Msg, e.Err)
 }
 
-func E(args ...interface{}) error {
+func NewError(args ...interface{}) error {
 	e := &Error{}
 	for _, args := range args {
 		switch args.(type) {

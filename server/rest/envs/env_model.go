@@ -7,11 +7,13 @@ type Env struct {
 	AppUrl         string `json:"APP_URL" mapstructure:"APP_URL"`
 	AppLogo        string `json:"APP_LOGO" mapstructure:"APP_LOGO"`
 	AppEnv         string `json:"APP_ENV" mapstructure:"APP_ENV"`
+	AppSecret      string `json:"APP_SECRET" mapstructure:"APP_SECRET"`
 	AppAdminSecret string `json:"APP_ADMIN_SECRET" mapstructure:"APP_ADMIN_SECRET"`
 
 	DatabaseType        string `json:"DATABASE_TYPE" mapstructure:"DATABASE_TYPE"`
 	DatabaseHost        string `json:"DATABASE_HOST" mapstructure:"DATABASE_HOST"`
 	DatabasePort        string `json:"DATABASE_PORT" mapstructure:"DATABASE_PORT"`
+	DatabaseSsl         string `json:"DATABASE_SSL" mapstructure:"DATABASE_SSL"`
 	DatabaseUser        string `json:"DATABASE_USER" mapstructure:"DATABASE_USER"`
 	DatabasePassword    string `json:"DATABASE_PASSWORD" mapstructure:"DATABASE_PASSWORD"`
 	DatabaseName        string `json:"DATABASE_NAME" mapstructure:"DATABASE_NAME"`
