@@ -25,6 +25,10 @@ func (c *DatabaseClient) GetObjectReferenceByName(ctx context.Context, name stri
 	return nil, nil
 }
 
+func (c *DatabaseClient) GetObjectReferencesByBucketId(ctx context.Context, bucketId string) (*[]databaseentities.BucketReference, error) {
+	return nil, nil
+}
+
 func (c *DatabaseClient) GetObjectReferences(ctx context.Context) (*[]databaseentities.ObjectReference, error) {
 	return nil, nil
 }
