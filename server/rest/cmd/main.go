@@ -36,6 +36,7 @@ func main() {
 
 	api := app.Group("/api")
 	handlers.RegisterHealthRoutes(api)
+	handlers.RegisterApplicationRoutes(api)
 
 	appPort := envs.EnvStoreInstance.GetEnv().AppPort
 
