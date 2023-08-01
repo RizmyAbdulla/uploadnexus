@@ -6,23 +6,22 @@ import (
 )
 
 type DatabaseClient interface {
-	CreateBucketReference(ctx context.Context, bucketReference databaseentities.BucketReference) error
-	UpdateBucketReference(ctx context.Context, bucketReference databaseentities.BucketReference) error
-	DeleteBucketReference(ctx context.Context, id string) error
-	CheckIfBucketReferenceById(ctx context.Context, id string) (bool, error)
-	GetBucketReferenceById(ctx context.Context, id string) (*databaseentities.BucketReference, error)
-	CheckIfBucketReferenceByName(ctx context.Context, name string) (bool, error)
-	GetBucketReferenceByName(ctx context.Context, name string) (*databaseentities.BucketReference, error)
-	GetBucketReferencesByApplicationId(ctx context.Context, applicationId string) (*[]databaseentities.BucketReference, error)
-	GetBucketReferences(ctx context.Context) (*[]databaseentities.BucketReference, error)
+	CreateBucket(ctx context.Context, bucketReference databaseentities.Bucket) error
+	UpdateBucket(ctx context.Context, bucketReference databaseentities.Bucket) error
+	DeleteBucket(ctx context.Context, id string) error
+	CheckIfBucketExistsById(ctx context.Context, id string) (bool, error)
+	GetBucketById(ctx context.Context, id string) (*databaseentities.Bucket, error)
+	CheckIfBucketExistsByName(ctx context.Context, name string) (bool, error)
+	GetBucketByName(ctx context.Context, name string) (*databaseentities.Bucket, error)
+	GetBuckets(ctx context.Context) (*[]databaseentities.Bucket, error)
 
-	CreateObjectReference(ctx context.Context, objectReference databaseentities.ObjectReference) error
-	UpdateObjectReference(ctx context.Context, objectReference databaseentities.ObjectReference) error
-	DeleteObjectReference(ctx context.Context, id string) error
-	CheckIfObjectReferenceById(ctx context.Context, id string) (bool, error)
-	GetObjectReferenceById(ctx context.Context, id string) (*databaseentities.ObjectReference, error)
-	CheckIfObjectReferenceByFileKey(ctx context.Context, fileKey string) (bool, error)
-	GetObjectReferenceByFileKey(ctx context.Context, fileKey string) (*databaseentities.ObjectReference, error)
-	GetObjectReferencesByBucketId(ctx context.Context, bucketId string) (*[]databaseentities.BucketReference, error)
-	GetObjectReferences(ctx context.Context) (*[]databaseentities.ObjectReference, error)
+	CreateObject(ctx context.Context, objectReference databaseentities.Object) error
+	UpdateObject(ctx context.Context, objectReference databaseentities.Object) error
+	DeleteObject(ctx context.Context, id string) error
+	CheckIfObjectExistsById(ctx context.Context, id string) (bool, error)
+	GetObjectById(ctx context.Context, id string) (*databaseentities.Object, error)
+	CheckIfObjectExistsByFileKey(ctx context.Context, fileKey string) (bool, error)
+	GetObjectByFileKey(ctx context.Context, fileKey string) (*databaseentities.Object, error)
+	GetObjectsByBucketId(ctx context.Context, bucketId string) (*[]databaseentities.Bucket, error)
+	GetObjects(ctx context.Context) (*[]databaseentities.Object, error)
 }
