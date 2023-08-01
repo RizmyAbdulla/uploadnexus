@@ -1,7 +1,12 @@
 package services
 
+import (
+	"github.com/ArkamFahry/uploadnexus/server/rest/constants"
+	"github.com/ArkamFahry/uploadnexus/server/rest/public/models"
+)
+
 type IHealthService interface {
-	GetHealth() string
+	GetHealth() *models.GeneralResponse
 }
 
 type HealthService struct {
@@ -13,6 +18,6 @@ func NewHealthService() *HealthService {
 	return &HealthService{}
 }
 
-func (s HealthService) GetHealth() string {
-	return "The api is health 💖💖💖"
+func (s HealthService) GetHealth() *models.GeneralResponse {
+	return models.NewGeneralResponse(constants.StatusOK, "Upload Nexus is up ⬆️ and running 🏃", nil)
 }

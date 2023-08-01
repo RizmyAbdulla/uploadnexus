@@ -5,14 +5,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterHealthRoutes(api fiber.Router) {
-	healthService := services.NewHealthService()
-	healthHandler := NewHealthHandler(healthService)
-
-	healthRoute := api.Group("/health")
-	healthRoute.Get("/", healthHandler.GetHealth)
-}
-
 type IHealthHandler interface {
 	GetHealth(ctx *fiber.Ctx) error
 }
@@ -30,5 +22,6 @@ func NewHealthHandler(healthService services.IHealthService) *HealthHandler {
 }
 
 func (h *HealthHandler) GetHealth(ctx *fiber.Ctx) error {
-	return ctx.SendString(h.healthService.GetHealth())
+	response := h.healthService.GetHealth()
+	return ctx.Status(response.Code).JSON(response)
 }
