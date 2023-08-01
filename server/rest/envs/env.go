@@ -1,13 +1,13 @@
 package envs
 
 import (
-	"github.com/ArkamFahry/uploadnexus/server/rest/errors"
+	"github.com/ArkamFahry/uploadnexus/server/rest/exceptions"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 )
 
 func InitEnv() error {
-	const Op errors.Op = "envs.InitEnv"
+	const Op exceptions.Op = "envs.InitEnv"
 	var err error
 	var env Env
 
@@ -17,12 +17,12 @@ func InitEnv() error {
 	viper.AddConfigPath(".")
 	err = viper.ReadInConfig()
 	if err != nil {
-		return errors.NewError(Op, errors.Msg("error reading config file"), err)
+		return exceptions.NewError(Op, "error reading config file", err)
 	}
 
 	err = viper.Unmarshal(&env)
 	if err != nil {
-		return errors.NewError(Op, errors.Msg("error parsing config file"), err)
+		return exceptions.NewError(Op, "error parsing config file", err)
 	}
 
 	if env.AppPort == "" {
@@ -35,6 +35,10 @@ func InitEnv() error {
 
 	if env.AppAdminSecret != "" {
 		env.AppAdminSecret = uuid.NewString() + uuid.NewString()
+	}
+
+	if env.AppIdType == "" {
+		env.AppIdType = "uuid"
 	}
 
 	if env.DatabaseType == "" {
