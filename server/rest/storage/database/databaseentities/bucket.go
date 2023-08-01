@@ -1,6 +1,6 @@
 package databaseentities
 
-type BucketReference struct {
+type Bucket struct {
 	Id          string  `json:"id" db:"id"`
 	Name        string  `json:"name" db:"name"`
 	Description *string `json:"description" db:"description"`
@@ -9,6 +9,6 @@ type BucketReference struct {
 	UpdatedAt   *int64  `json:"updated_at" db:"updated_at"`
 }
 
-func (BucketReference) CollectionName() string {
-	return "bucket_references"
+func (Bucket) CollectionName() string {
+	return "buckets"
 }
