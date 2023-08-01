@@ -6,7 +6,7 @@ const (
 	UploadStatusFailed    = "failed"
 )
 
-type ObjectReference struct {
+type Object struct {
 	Id              string      `json:"id" db:"id"`
 	BucketReference string      `json:"bucket_reference" db:"bucket_reference"`
 	FileKey         string      `json:"file_key" db:"file_key"`
@@ -19,6 +19,6 @@ type ObjectReference struct {
 	UpdatedAt       *int64      `json:"updated_at" db:"updated_at"`
 }
 
-func (ObjectReference) CollectionName() string {
-	return "object_references"
+func (Object) CollectionName() string {
+	return "objects"
 }

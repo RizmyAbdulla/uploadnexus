@@ -1,4 +1,4 @@
-create table if not exists object_references
+create table if not exists objects
 (
     id               char(36) primary key,
     bucket_reference char(36)     not null,
