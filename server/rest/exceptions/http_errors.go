@@ -1,4 +1,6 @@
-package errors
+package exceptions
+
+import "github.com/ArkamFahry/uploadnexus/server/rest/constants"
 
 type HttpError struct {
 	Code  int         `json:"code"`
@@ -12,4 +14,12 @@ func NewHttpError(code int, error string, data interface{}) *HttpError {
 		Error: error,
 		Data:  data,
 	}
+}
+
+func NewBadRequestError(error string, data interface{}) *HttpError {
+	return NewHttpError(constants.StatusBadRequest, error, data)
+}
+
+func NewInternalServerError(error string, data interface{}) *HttpError {
+	return NewHttpError(constants.StatusInternalServerError, error, data)
 }
