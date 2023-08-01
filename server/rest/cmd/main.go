@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ArkamFahry/uploadnexus/server/rest/api/handlers"
+	"github.com/ArkamFahry/uploadnexus/server/rest/api/routes"
 	"github.com/ArkamFahry/uploadnexus/server/rest/config"
 	"github.com/ArkamFahry/uploadnexus/server/rest/envs"
 	"github.com/ArkamFahry/uploadnexus/server/rest/exceptions"
@@ -40,8 +40,7 @@ func main() {
 	app.Use(recoverMiddleware)
 
 	api := app.Group("/api")
-	handlers.RegisterHealthRoutes(api)
-	handlers.RegisterApplicationRoutes(api)
+	routes.RegisterHealthRoutes(api)
 
 	appPort := envs.EnvStoreInstance.GetEnv().AppPort
 
