@@ -2,7 +2,6 @@ package databaseentities
 
 type BucketReference struct {
 	Id          string  `json:"id" db:"id"`
-	Application string  `json:"application" db:"application"`
 	Name        string  `json:"name" db:"name"`
 	Description *string `json:"description" db:"description"`
 	IsPublic    bool    `json:"is_public" db:"is_public"`

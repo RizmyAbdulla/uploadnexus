@@ -2,7 +2,7 @@ package minio
 
 import (
 	"github.com/ArkamFahry/uploadnexus/server/rest/envs"
-	"github.com/ArkamFahry/uploadnexus/server/rest/errors"
+	"github.com/ArkamFahry/uploadnexus/server/rest/exceptions"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -12,7 +12,7 @@ type Client struct {
 }
 
 func NewClient() (*Client, error) {
-	const Op errors.Op = "minio.NewClient"
+	const Op exceptions.Op = "minio.NewClient"
 	var err error
 	var objectStore *minio.Client
 
@@ -27,7 +27,7 @@ func NewClient() (*Client, error) {
 	})
 
 	if err != nil {
-		return nil, errors.NewError(Op, errors.Msg("error creating minio client"), err)
+		return nil, exceptions.NewError(Op, exceptions.Msg("error creating minio client"), err)
 	}
 
 	return &Client{

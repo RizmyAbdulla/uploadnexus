@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-func GetTime() int64 {
+func GetTimeUnix() int64 {
 	return time.Now().Unix()
 }
 
-func GetUuid() string {
-	return uuid.NewString()
+func GetUUID() string {
+	return uuid.New().String()
 }

@@ -17,11 +17,19 @@ func (c *DatabaseClient) DeleteObjectReference(ctx context.Context, id string) e
 	return nil
 }
 
+func (c *DatabaseClient) CheckIfObjectReferenceById(ctx context.Context, id string) (bool, error) {
+	return false, nil
+}
+
 func (c *DatabaseClient) GetObjectReferenceById(ctx context.Context, id string) (*databaseentities.ObjectReference, error) {
 	return nil, nil
 }
 
-func (c *DatabaseClient) GetObjectReferenceByName(ctx context.Context, name string) (*databaseentities.ObjectReference, error) {
+func (c *DatabaseClient) CheckIfObjectReferenceByFileKey(ctx context.Context, fileKey string) (bool, error) {
+	return false, nil
+}
+
+func (c *DatabaseClient) GetObjectReferenceByFileKey(ctx context.Context, fileKey string) (*databaseentities.ObjectReference, error) {
 	return nil, nil
 }
 

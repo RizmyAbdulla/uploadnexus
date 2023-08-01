@@ -10,8 +10,8 @@ type ObjectStoreClient interface {
 	DeleteBucket(ctx context.Context, name string) error
 	CheckIfBucketExists(ctx context.Context, name string) (bool, error)
 
-	CreatePresignedPutUrl(ctx context.Context, createdPresignedUrl objectstoreentities.CreatedPresignedUrl) (string, error)
-	CratedPresignedGetUrl(ctx context.Context, createdPresignedUrl objectstoreentities.CreatedPresignedUrl) (string, error)
+	CreatePresignedPutUrl(ctx context.Context, presignedUrl objectstoreentities.PresignedUrl) (string, error)
+	CratedPresignedGetUrl(ctx context.Context, presignedUrl objectstoreentities.PresignedUrl) (string, error)
 
 	DeleteObject(ctx context.Context, object objectstoreentities.Object) error
 }
