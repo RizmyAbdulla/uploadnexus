@@ -34,10 +34,6 @@ func InitEnv() error {
 		env.AppSecret = uuid.NewString() + uuid.NewString()
 	}
 
-	if env.AppAdminSecret != "" {
-		env.AppAdminSecret = uuid.NewString() + uuid.NewString()
-	}
-
 	if env.AppIdType == "" {
 		env.AppIdType = "uuid"
 	}
@@ -82,7 +78,7 @@ func InitEnv() error {
 		return exceptions.NewError(Op, "error object store endpoint is empty", err)
 	}
 
-	if len(env.Buckets) == 0 {
+	if env.BucketName == "" {
 		return exceptions.NewError(Op, "error buckets is empty", err)
 	}
 
