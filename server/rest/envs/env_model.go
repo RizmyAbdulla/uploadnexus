@@ -19,21 +19,29 @@ type Env struct {
 	DatabaseName        string `json:"DATABASE_NAME" mapstructure:"DATABASE_NAME"`
 	DatabaseAutoMigrate bool   `json:"DATABASE_AUTO_MIGRATE" mapstructure:"DATABASE_AUTO_MIGRATE"`
 
+	ObjectStoreType      string `json:"OBJECT_STORE_TYPE" mapstructure:"OBJECT_STORE_TYPE"`
+	ObjectStoreEndpoint  string `json:"OBJECT_STORE_ENDPOINT" mapstructure:"OBJECT_STORE_ENDPOINT"`
+	ObjectStoreAccessKey string `json:"OBJECT_STORE_ACCESS_KEY" mapstructure:"OBJECT_STORE_ACCESS_KEY"`
+	ObjectStoreSecretKey string `json:"OBJECT_STORE_SECRET_KEY" mapstructure:"OBJECT_STORE_SECRET_KEY"`
+	ObjectStoreSsl       bool   `json:"OBJECT_STORE_SSL" mapstructure:"OBJECT_STORE_SSL"`
+	ObjectStoreRegion    string `json:"OBJECT_STORE_REGION" mapstructure:"OBJECT_STORE_REGION"`
+
+	Buckets []Bucket `json:"Buckets" mapstructure:"Buckets"`
+
 	CacheType     string `json:"CACHE_TYPE" mapstructure:"CACHE_TYPE"`
 	CacheHost     string `json:"CACHE_HOST" mapstructure:"CACHE_HOST"`
 	CachePort     string `json:"CACHE_PORT" mapstructure:"CACHE_PORT"`
 	CacheUser     string `json:"CACHE_USER" mapstructure:"CACHE_USER"`
 	CachePassword string `json:"CACHE_PASSWORD" mapstructure:"CACHE_PASSWORD"`
 
-	ObjectStoreType      string `json:"OBJECT_STORE_TYPE" mapstructure:"OBJECT_STORE_TYPE"`
-	ObjectStoreEndpoint  string `json:"OBJECT_STORE_ENDPOINT" mapstructure:"OBJECT_STORE_ENDPOINT"`
-	ObjectStoreAccessKey string `json:"OBJECT_STORE_ACCESS_KEY" mapstructure:"OBJECT_STORE_ACCESS_KEY"`
-	ObjectStoreSecretKey string `json:"OBJECT_STORE_SECRET_KEY" mapstructure:"OBJECT_STORE_SECRET_KEY"`
-	ObjectStoreSsl       bool   `json:"OBJECT_STORE_SSL" mapstructure:"OBJECT_STORE_SSL"`
-
 	EventStoreType     string `json:"EVENT_STORE_TYPE" mapstructure:"EVENT_STORE_TYPE"`
 	EventStoreHost     string `json:"EVENT_STORE_HOST" mapstructure:"EVENT_STORE_HOST"`
 	EventStorePort     string `json:"EVENT_STORE_PORT" mapstructure:"EVENT_STORE_PORT"`
 	EventStoreUser     string `json:"EVENT_STORE_USER" mapstructure:"EVENT_STORE_USER"`
 	EventStorePassword string `json:"EVENT_STORE_PASSWORD" mapstructure:"EVENT_STORE_PASSWORD"`
+}
+
+type Bucket struct {
+	BucketName        string `json:"BUCKET_NAME" mapstructure:"BUCKET_NAME"`
+	BucketDescription string `json:"BUCKET_DESCRIPTION" mapstructure:"BUCKET_DESCRIPTION"`
 }
