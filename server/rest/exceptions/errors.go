@@ -1,4 +1,4 @@
-package errors
+package exceptions
 
 import "fmt"
 
@@ -16,19 +16,12 @@ func (e *Error) Error() string {
 	return fmt.Sprintf("Operation: %v, Message: %v, Error: %v", e.Op, e.Msg, e.Err)
 }
 
-func NewError(args ...interface{}) error {
-	e := &Error{}
-	for _, args := range args {
-		switch args.(type) {
-		case Op:
-			e.Op = args.(Op)
-		case Msg:
-			e.Msg = args.(Msg)
-		case Err:
-			e.Err = args.(Err)
-		}
+func NewError(Op Op, Msg Msg, Err Err) error {
+	return &Error{
+		Op:  Op,
+		Msg: Msg,
+		Err: Err,
 	}
-	return e
 }
 
 func Ops(e *Error) []Op {
