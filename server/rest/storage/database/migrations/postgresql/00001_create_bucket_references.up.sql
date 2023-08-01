@@ -1,7 +1,7 @@
 create table if not exists bucket_references
 (
     id          char(36) primary key,
-    application char(255) not null,
+    application char(36) not null,
     name        varchar(255) not null,
     description text,
     is_public   boolean      not null,
