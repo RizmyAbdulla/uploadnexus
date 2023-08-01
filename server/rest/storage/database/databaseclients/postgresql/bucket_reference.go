@@ -17,8 +17,16 @@ func (c *DatabaseClient) DeleteBucketReference(ctx context.Context, id string) e
 	return nil
 }
 
+func (c *DatabaseClient) CheckIfBucketReferenceById(ctx context.Context, id string) (bool, error) {
+	return false, nil
+}
+
 func (c *DatabaseClient) GetBucketReferenceById(ctx context.Context, id string) (*databaseentities.BucketReference, error) {
 	return nil, nil
+}
+
+func (c *DatabaseClient) CheckIfBucketReferenceByName(ctx context.Context, name string) (bool, error) {
+	return false, nil
 }
 
 func (c *DatabaseClient) GetBucketReferenceByName(ctx context.Context, name string) (*databaseentities.BucketReference, error) {
