@@ -11,7 +11,6 @@ func InitEnv() error {
 	var err error
 	var env Env
 
-	viper.AutomaticEnv()
 	viper.SetConfigName("dev")
 	viper.SetConfigType("env")
 	viper.AddConfigPath(".")
@@ -19,6 +18,8 @@ func InitEnv() error {
 	if err != nil {
 		return exceptions.NewError(Op, "error reading config file", err)
 	}
+
+	viper.AutomaticEnv()
 
 	err = viper.Unmarshal(&env)
 	if err != nil {
