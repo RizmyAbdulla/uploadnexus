@@ -3,7 +3,7 @@ package database
 import (
 	"github.com/ArkamFahry/uploadnexus/server/rest/constants"
 	"github.com/ArkamFahry/uploadnexus/server/rest/envs"
-	"github.com/ArkamFahry/uploadnexus/server/rest/errors"
+	"github.com/ArkamFahry/uploadnexus/server/rest/exceptions"
 	"github.com/ArkamFahry/uploadnexus/server/rest/storage/database/databaseclients"
 	"github.com/ArkamFahry/uploadnexus/server/rest/storage/database/databaseclients/postgresql"
 )
@@ -11,7 +11,7 @@ import (
 var Client databaseclients.DatabaseClient
 
 func InitDatabase() error {
-	const Op errors.Op = "database.InitDatabase"
+	const Op exceptions.Op = "database.InitDatabase"
 	var err error
 
 	isPostgreSQL := envs.EnvStoreInstance.GetEnv().DatabaseType == constants.DatabaseTypePostgreSQL
@@ -19,7 +19,7 @@ func InitDatabase() error {
 	if isPostgreSQL {
 		Client, err = postgresql.NewClient()
 		if err != nil {
-			return errors.NewError(Op, errors.Msg("failed to create database provider"), err)
+			return exceptions.NewError(Op, "failed to create database provider", err)
 		}
 	}
 
