@@ -5,7 +5,7 @@ type Env struct {
 	AppHost        string `json:"APP_HOST" mapstructure:"APP_HOST"`
 	AppPort        string `json:"APP_PORT" mapstructure:"APP_PORT"`
 	AppUrl         string `json:"APP_URL" mapstructure:"APP_URL"`
-	AppLogo        string `json:"APP_LOGO" mapstructure:"APP_LOGO"`
+	AppIdType      string `json:"APP_ID_TYPE" mapstructure:"APP_ID_TYPE"`
 	AppEnv         string `json:"APP_ENV" mapstructure:"APP_ENV"`
 	AppSecret      string `json:"APP_SECRET" mapstructure:"APP_SECRET"`
 	AppAdminSecret string `json:"APP_ADMIN_SECRET" mapstructure:"APP_ADMIN_SECRET"`
