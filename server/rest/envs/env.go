@@ -58,6 +58,34 @@ func InitEnv() error {
 		env.EventStoreType = "redis"
 	}
 
+	if env.DatabaseHost == "" {
+		return exceptions.NewError(Op, "error database host is empty", err)
+	}
+
+	if env.DatabasePort == "" {
+		return exceptions.NewError(Op, "error database port is empty", err)
+	}
+
+	if env.DatabaseUser == "" {
+		return exceptions.NewError(Op, "error database user is empty", err)
+	}
+
+	if env.DatabasePassword == "" {
+		return exceptions.NewError(Op, "error database password is empty", err)
+	}
+
+	if env.DatabaseName == "" {
+		return exceptions.NewError(Op, "error database name is empty", err)
+	}
+
+	if env.ObjectStoreEndpoint == "" {
+		return exceptions.NewError(Op, "error object store endpoint is empty", err)
+	}
+
+	if len(env.Buckets) == 0 {
+		return exceptions.NewError(Op, "error buckets is empty", err)
+	}
+
 	IntiEnvStore(env)
 
 	return nil
