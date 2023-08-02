@@ -1,4 +1,4 @@
-package exceptions
+package errors
 
 import "github.com/ArkamFahry/uploadnexus/server/rest/constants"
 

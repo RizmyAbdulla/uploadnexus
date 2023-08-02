@@ -1,13 +1,13 @@
 package envs
 
 import (
-	"github.com/ArkamFahry/uploadnexus/server/rest/exceptions"
+	"github.com/ArkamFahry/uploadnexus/server/rest/errors"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 )
 
 func InitEnv() error {
-	const Op exceptions.Op = "envs.InitEnv"
+	const Op errors.Op = "envs.InitEnv"
 	var err error
 	var env Env
 
@@ -16,14 +16,14 @@ func InitEnv() error {
 	viper.AddConfigPath(".")
 	err = viper.ReadInConfig()
 	if err != nil {
-		return exceptions.NewError(Op, "error reading config file", err)
+		return errors.NewError(Op, "error reading config file", err)
 	}
 
 	viper.AutomaticEnv()
 
 	err = viper.Unmarshal(&env)
 	if err != nil {
-		return exceptions.NewError(Op, "error parsing config file", err)
+		return errors.NewError(Op, "error parsing config file", err)
 	}
 
 	if env.AppPort == "" {
@@ -55,31 +55,31 @@ func InitEnv() error {
 	}
 
 	if env.DatabaseHost == "" {
-		return exceptions.NewError(Op, "error database host is empty", err)
+		return errors.NewError(Op, "error database host is empty", err)
 	}
 
 	if env.DatabasePort == "" {
-		return exceptions.NewError(Op, "error database port is empty", err)
+		return errors.NewError(Op, "error database port is empty", err)
 	}
 
 	if env.DatabaseUser == "" {
-		return exceptions.NewError(Op, "error database user is empty", err)
+		return errors.NewError(Op, "error database user is empty", err)
 	}
 
 	if env.DatabasePassword == "" {
-		return exceptions.NewError(Op, "error database password is empty", err)
+		return errors.NewError(Op, "error database password is empty", err)
 	}
 
 	if env.DatabaseName == "" {
-		return exceptions.NewError(Op, "error database name is empty", err)
+		return errors.NewError(Op, "error database name is empty", err)
 	}
 
 	if env.ObjectStoreEndpoint == "" {
-		return exceptions.NewError(Op, "error object store endpoint is empty", err)
+		return errors.NewError(Op, "error object store endpoint is empty", err)
 	}
 
 	if env.BucketName == "" {
-		return exceptions.NewError(Op, "error buckets is empty", err)
+		return errors.NewError(Op, "error buckets is empty", err)
 	}
 
 	IntiEnvStore(env)
