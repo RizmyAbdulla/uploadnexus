@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/ArkamFahry/uploadnexus/server/rest/constants"
-	"github.com/ArkamFahry/uploadnexus/server/rest/public/models"
+	"github.com/ArkamFahry/uploadnexus/server/rest/models"
 )
 
 type IHealthService interface {
