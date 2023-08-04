@@ -2,14 +2,14 @@ package postgresql
 
 import (
 	"context"
-	"github.com/ArkamFahry/uploadnexus/server/rest/storage/database/databaseentities"
+	"github.com/ArkamFahry/uploadnexus/server/rest/models"
 )
 
-func (c *DatabaseClient) CreateObject(ctx context.Context, objectReference databaseentities.Object) error {
+func (c *DatabaseClient) CreateObject(ctx context.Context, objectReference models.Object) error {
 	return nil
 }
 
-func (c *DatabaseClient) UpdateObject(ctx context.Context, objectReference databaseentities.Object) error {
+func (c *DatabaseClient) UpdateObject(ctx context.Context, objectReference models.Object) error {
 	return nil
 }
 
@@ -21,7 +21,7 @@ func (c *DatabaseClient) CheckIfObjectExistsById(ctx context.Context, id string)
 	return false, nil
 }
 
-func (c *DatabaseClient) GetObjectById(ctx context.Context, id string) (*databaseentities.Object, error) {
+func (c *DatabaseClient) GetObjectById(ctx context.Context, id string) (*models.Object, error) {
 	return nil, nil
 }
 
@@ -29,14 +29,14 @@ func (c *DatabaseClient) CheckIfObjectExistsByFileKey(ctx context.Context, fileK
 	return false, nil
 }
 
-func (c *DatabaseClient) GetObjectByFileKey(ctx context.Context, fileKey string) (*databaseentities.Object, error) {
+func (c *DatabaseClient) GetObjectByFileKey(ctx context.Context, fileKey string) (*models.Object, error) {
 	return nil, nil
 }
 
-func (c *DatabaseClient) GetObjectsByBucketId(ctx context.Context, bucketId string) (*[]databaseentities.Bucket, error) {
+func (c *DatabaseClient) GetObjectsByBucketId(ctx context.Context, bucketId string) (*[]models.Bucket, error) {
 	return nil, nil
 }
 
-func (c *DatabaseClient) GetObjects(ctx context.Context) (*[]databaseentities.Object, error) {
+func (c *DatabaseClient) GetObjects(ctx context.Context) (*[]models.Object, error) {
 	return nil, nil
 }

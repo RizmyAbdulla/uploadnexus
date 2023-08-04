@@ -4,11 +4,11 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/rest/constants"
 	"github.com/ArkamFahry/uploadnexus/server/rest/envs"
 	"github.com/ArkamFahry/uploadnexus/server/rest/errors"
-	"github.com/ArkamFahry/uploadnexus/server/rest/storage/objectstore/objectstoreclients"
-	"github.com/ArkamFahry/uploadnexus/server/rest/storage/objectstore/objectstoreclients/minio"
+	"github.com/ArkamFahry/uploadnexus/server/rest/storage/objectstore/clients"
+	"github.com/ArkamFahry/uploadnexus/server/rest/storage/objectstore/clients/minio"
 )
 
-var Client objectstoreclients.ObjectStoreClient
+var Client clients.ObjectStoreClient
 
 func InitObjectStore() error {
 	const Op errors.Op = "objectstore.InitObjectStore"
@@ -18,13 +18,13 @@ func InitObjectStore() error {
 	if isMinio {
 		Client, err = minio.NewClient()
 		if err != nil {
-			return errors.NewError(Op, errors.Msg("failed to create object store provider"), err)
+			return errors.NewError(Op, "failed to create object store provider", err)
 		}
 	}
 
 	return nil
 }
 
-func GetObjectStoreClient() objectstoreclients.ObjectStoreClient {
+func GetObjectStoreClient() clients.ObjectStoreClient {
 	return Client
 }

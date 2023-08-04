@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func Validate(modelValidate interface{}) ([]map[string]interface{}, error) {
+func ValidateModel(modelValidate interface{}) ([]map[string]interface{}, error) {
 	var messages []map[string]interface{}
 
 	validate := validator.New()

@@ -4,11 +4,11 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/rest/constants"
 	"github.com/ArkamFahry/uploadnexus/server/rest/envs"
 	"github.com/ArkamFahry/uploadnexus/server/rest/errors"
-	"github.com/ArkamFahry/uploadnexus/server/rest/storage/database/databaseclients"
-	"github.com/ArkamFahry/uploadnexus/server/rest/storage/database/databaseclients/postgresql"
+	"github.com/ArkamFahry/uploadnexus/server/rest/storage/database/clients"
+	"github.com/ArkamFahry/uploadnexus/server/rest/storage/database/clients/postgresql"
 )
 
-var Client databaseclients.DatabaseClient
+var Client clients.DatabaseClient
 
 func InitDatabase() error {
 	const Op errors.Op = "database.InitDatabase"
@@ -26,6 +26,6 @@ func InitDatabase() error {
 	return nil
 }
 
-func GetDatabaseClient() databaseclients.DatabaseClient {
+func GetDatabaseClient() clients.DatabaseClient {
 	return Client
 }

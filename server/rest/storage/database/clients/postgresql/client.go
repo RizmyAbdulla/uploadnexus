@@ -1,24 +1,24 @@
 package postgresql
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/ArkamFahry/uploadnexus/server/rest/envs"
 	"github.com/ArkamFahry/uploadnexus/server/rest/errors"
 	"github.com/ArkamFahry/uploadnexus/server/rest/storage/database/migrations"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
 type DatabaseClient struct {
-	db *sqlx.DB
+	db *sql.DB
 }
 
 func NewClient() (*DatabaseClient, error) {
 	const Op errors.Op = "postgresql.NewClient"
 	var err error
-	var db *sqlx.DB
+	var db *sql.DB
 
 	postgresqlHost := envs.EnvStoreInstance.GetEnv().DatabaseHost
 	postgresqlPort := envs.EnvStoreInstance.GetEnv().DatabasePort
@@ -34,7 +34,7 @@ func NewClient() (*DatabaseClient, error) {
 		return nil, errors.NewError(Op, errors.Msg("failed to migrate database"), err)
 	}
 
-	db, err = sqlx.Open("postgres", postgresqlUrl)
+	db, err = sql.Open("postgres", postgresqlUrl)
 	if err != nil {
 		return nil, errors.NewError(Op, errors.Msg("failed to open database connection"), err)
 	}
