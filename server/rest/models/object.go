@@ -1,10 +1,12 @@
-package entities
+package models
 
 const (
 	UploadStatusPending   = "pending"
 	UploadStatusCompleted = "completed"
 	UploadStatusFailed    = "failed"
 )
+
+const ObjectCollection = "objects"
 
 type Object struct {
 	Id           string      `json:"id" db:"id"`
@@ -16,8 +18,4 @@ type Object struct {
 	Metadata     interface{} `json:"metadata" db:"metadata"`
 	CreatedAt    int64       `json:"created_at" db:"created_at"`
 	UpdatedAt    *int64      `json:"updated_at" db:"updated_at"`
-}
-
-func (Object) CollectionName() string {
-	return "objects"
 }
