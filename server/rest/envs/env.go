@@ -46,6 +46,10 @@ func InitEnv() error {
 		env.ObjectStoreType = "minio"
 	}
 
+	if env.ObjectStoreRegion == "" {
+		env.ObjectStoreRegion = "us-east-1"
+	}
+
 	if env.CacheType == "" {
 		env.CacheType = "redis"
 	}
