@@ -12,7 +12,7 @@ import (
 type IBucketService interface {
 	CreateBucket(ctx context.Context, bucketDto models.BucketCreate) (*models.GeneralResponse, *errors.HttpError)
 	UpdateBucket(ctx context.Context, id string, bucketDto models.BucketCreate) (*models.GeneralResponse, *errors.HttpError)
-	DeleteBucket(ctx context.Context, id string) *errors.HttpError
+	DeleteBucket(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError)
 	GetBucketById(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError)
 	GetBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError)
 }
@@ -144,8 +144,21 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketDto m
 	return models.NewGeneralResponse(constants.StatusOK, "bucket updated successfully", newBucket), nil
 }
 
-func (s *BucketService) DeleteBucket(ctx context.Context, id string) *errors.HttpError {
-	return nil
+func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError) {
+	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to check if bucket exists by id", nil)
+	}
+	if !exists {
+		return nil, errors.NewBadRequestError("bucket with the id '"+id+"' does not exist", nil)
+	}
+
+	err = s.databaseClient.DeleteBucket(ctx, id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to delete bucket", nil)
+	}
+
+	return models.NewGeneralResponse(constants.StatusNoContent, "bucket deleted successfully", nil), nil
 }
 
 func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError) {
@@ -166,5 +179,10 @@ func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.G
 }
 
 func (s *BucketService) GetBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError) {
-	return nil, nil
+	buckets, err := s.databaseClient.GetBuckets(ctx)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to get buckets", nil)
+	}
+
+	return models.NewGeneralResponse(constants.StatusOK, "buckets retrieved successfully", buckets), nil
 }

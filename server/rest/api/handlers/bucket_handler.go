@@ -62,6 +62,29 @@ func (h *BucketHandler) UpdateBucket(ctx *fiber.Ctx) error {
 	return ctx.Status(response.Code).JSON(response)
 }
 
+func (h *BucketHandler) DeleteBucket(ctx *fiber.Ctx) error {
+	id, err := utils.GetParamId(ctx)
+	if err != nil {
+		return ctx.Status(err.Code).JSON(err)
+	}
+
+	response, err := h.bucketService.DeleteBucket(ctx.Context(), id)
+	if err != nil {
+		return ctx.Status(err.Code).JSON(err)
+	}
+
+	return ctx.Status(response.Code).JSON(response)
+}
+
+func (h *BucketHandler) GetBuckets(ctx *fiber.Ctx) error {
+	response, err := h.bucketService.GetBuckets(ctx.Context())
+	if err != nil {
+		return ctx.Status(err.Code).JSON(err)
+	}
+
+	return ctx.Status(response.Code).JSON(response)
+}
+
 func (h *BucketHandler) GetBucketById(ctx *fiber.Ctx) error {
 	id, err := utils.GetParamId(ctx)
 	if err != nil {

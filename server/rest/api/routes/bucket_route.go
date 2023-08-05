@@ -15,5 +15,7 @@ func RegisterBucketRoutes(api fiber.Router) {
 	bucketRouter := api.Group("/buckets")
 	bucketRouter.Post("/", bucketHandler.CreateBucket)
 	bucketRouter.Patch("/:id", bucketHandler.UpdateBucket)
+	bucketRouter.Delete("/:id", bucketHandler.DeleteBucket)
+	bucketRouter.Get("/", bucketHandler.GetBuckets)
 	bucketRouter.Get("/:id", bucketHandler.GetBucketById)
 }
