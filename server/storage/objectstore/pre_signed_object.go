@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-func (c *S3Client) CreatePresignedPutUrl(ctx context.Context, bucketName string, objectName string, expiry int64) (string, error) {
-	const Op errors.Op = "objectstore.CreatePresignedPutUrl"
+func (c *S3Client) CreatePresignedPutObject(ctx context.Context, bucketName string, objectName string, expiry int64) (string, error) {
+	const Op errors.Op = "objectstore.CreatePresignedPutObject"
 
 	expiryTime := time.Unix(expiry, 0)
 
@@ -25,8 +25,8 @@ func (c *S3Client) CreatePresignedPutUrl(ctx context.Context, bucketName string,
 	return url.URL, nil
 }
 
-func (c *S3Client) CratedPresignedGetUrl(ctx context.Context, bucketName string, objectName string, expiry int64) (string, error) {
-	const Op errors.Op = "objectstore.CreatePresignedPutUrl"
+func (c *S3Client) CratedPresignedGetObject(ctx context.Context, bucketName string, objectName string, expiry int64) (string, error) {
+	const Op errors.Op = "objectstore.CreatePresignedPutObject"
 
 	url, err := c.s3PresignedClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
