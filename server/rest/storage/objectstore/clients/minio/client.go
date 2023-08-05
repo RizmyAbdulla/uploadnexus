@@ -27,7 +27,7 @@ func NewClient() (*Client, error) {
 	})
 
 	if err != nil {
-		return nil, errors.NewError(Op, errors.Msg("error creating minio client"), err)
+		return nil, errors.NewError(Op, "error creating minio client", err)
 	}
 
 	return &Client{
