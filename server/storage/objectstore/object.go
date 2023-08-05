@@ -15,7 +15,7 @@ func (c *S3Client) DeleteObject(ctx context.Context, bucketName string, objectNa
 		Key:    aws.String(objectName),
 	})
 	if err != nil {
-		return errors.NewError(Op, errors.Msg("failed to delete object"), err)
+		return errors.NewError(Op, "failed to delete object", err)
 	}
 
 	return nil
