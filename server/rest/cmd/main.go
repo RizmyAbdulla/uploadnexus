@@ -42,6 +42,7 @@ func main() {
 	api := app.Group("/api")
 	routes.RegisterHealthRoutes(api)
 	routes.RegisterBucketRoutes(api)
+	routes.RegisterUploadRoutes(api)
 
 	appPort := envs.EnvStoreInstance.GetEnv().AppPort
 
