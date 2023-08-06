@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ArkamFahry/uploadnexus/server/errors"
-	"github.com/ArkamFahry/uploadnexus/server/models"
+	"github.com/ArkamFahry/uploadnexus/server/storage/entities"
 )
 
-func (c *DatabaseClient) CreateObject(ctx context.Context, object models.Object) error {
+func (c *DatabaseClient) CreateObject(ctx context.Context, object entities.Object) error {
 	const Op errors.Op = "postgresql.CreateObject"
 
-	query := fmt.Sprintf(`INSERT INTO %s (id, bucket, name, mime_type, size, upload_status, metadata, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, models.ObjectCollection)
+	query := fmt.Sprintf(`INSERT INTO %s (id, bucket, name, mime_type, size, upload_status, metadata, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -28,10 +28,10 @@ func (c *DatabaseClient) CreateObject(ctx context.Context, object models.Object)
 	return nil
 }
 
-func (c *DatabaseClient) UpdateObject(ctx context.Context, object models.Object) error {
+func (c *DatabaseClient) UpdateObject(ctx context.Context, object entities.Object) error {
 	const Op errors.Op = "postgresql.UpdateObject"
 
-	query := fmt.Sprintf(`UPDATE %s SET bucket = $1, name = $2, mime_type = $3, size = $4, upload_status = $5, metadata = $6, updated_at = $7 WHERE id = $8`, models.ObjectCollection)
+	query := fmt.Sprintf(`UPDATE %s SET bucket = $1, name = $2, mime_type = $3, size = $4, upload_status = $5, metadata = $6, updated_at = $7 WHERE id = $8`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -51,7 +51,7 @@ func (c *DatabaseClient) UpdateObject(ctx context.Context, object models.Object)
 func (c *DatabaseClient) DeleteObject(ctx context.Context, id string) error {
 	const Op errors.Op = "postgresql.DeleteObject"
 
-	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, models.ObjectCollection)
+	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -70,7 +70,7 @@ func (c *DatabaseClient) CheckIfObjectExistsById(ctx context.Context, id string)
 	const Op errors.Op = "postgresql.CheckIfObjectExistsById"
 	var exists bool
 
-	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE id = $1)`, models.ObjectCollection)
+	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE id = $1)`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -89,12 +89,12 @@ func (c *DatabaseClient) CheckIfObjectExistsById(ctx context.Context, id string)
 	return false, nil
 }
 
-func (c *DatabaseClient) GetObjectById(ctx context.Context, id string) (*models.Object, error) {
+func (c *DatabaseClient) GetObjectById(ctx context.Context, id string) (*entities.Object, error) {
 	const Op errors.Op = "postgresql.GetObjectById"
-	var object models.Object
+	var object entities.Object
 	var metadataJson json.RawMessage
 
-	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE id = $1`, models.ObjectCollection)
+	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE id = $1`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -119,7 +119,7 @@ func (c *DatabaseClient) CheckIfObjectExistsByName(ctx context.Context, name str
 	const Op errors.Op = "postgresql.CheckIfObjectExistsByName"
 	var exists bool
 
-	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE name = $1)`, models.ObjectCollection)
+	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE name = $1)`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -138,12 +138,12 @@ func (c *DatabaseClient) CheckIfObjectExistsByName(ctx context.Context, name str
 	return false, nil
 }
 
-func (c *DatabaseClient) GetObjectByName(ctx context.Context, name string) (*models.Object, error) {
+func (c *DatabaseClient) GetObjectByName(ctx context.Context, name string) (*entities.Object, error) {
 	const Op errors.Op = "postgresql.GetObjectByName"
-	var object models.Object
+	var object entities.Object
 	var metadataJson json.RawMessage
 
-	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE name = $1`, models.ObjectCollection)
+	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE name = $1`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -164,11 +164,11 @@ func (c *DatabaseClient) GetObjectByName(ctx context.Context, name string) (*mod
 	return nil, nil
 }
 
-func (c *DatabaseClient) GetObjectsByBucketId(ctx context.Context, bucketId string) (*[]models.Object, error) {
+func (c *DatabaseClient) GetObjectsByBucketId(ctx context.Context, bucketId string) (*[]entities.Object, error) {
 	const Op errors.Op = "postgresql.GetObjectsByBucketId"
-	var objects []models.Object
+	var objects []entities.Object
 
-	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = $1`, models.ObjectCollection)
+	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = $1`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -181,7 +181,7 @@ func (c *DatabaseClient) GetObjectsByBucketId(ctx context.Context, bucketId stri
 	}
 
 	for result.Next() {
-		var object models.Object
+		var object entities.Object
 		var metadataJson json.RawMessage
 		err = result.Scan(&object.Id, &object.Bucket, &object.Name, &object.MimeType, &object.Size, &object.UploadStatus, &metadataJson, &object.CreatedAt, &object.UpdatedAt)
 		if err != nil {
@@ -197,11 +197,11 @@ func (c *DatabaseClient) GetObjectsByBucketId(ctx context.Context, bucketId stri
 	return &objects, nil
 }
 
-func (c *DatabaseClient) GetObjectsByBucketName(ctx context.Context, bucketName string) (*[]models.Object, error) {
+func (c *DatabaseClient) GetObjectsByBucketName(ctx context.Context, bucketName string) (*[]entities.Object, error) {
 	const Op errors.Op = "postgresql.GetObjectsByBucketName"
-	var objects []models.Object
+	var objects []entities.Object
 
-	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = (SELECT id FROM %s WHERE name = $1)`, models.ObjectCollection, models.BucketCollection)
+	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = (SELECT id FROM %s WHERE name = $1)`, entities.ObjectCollection, entities.BucketCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -214,7 +214,7 @@ func (c *DatabaseClient) GetObjectsByBucketName(ctx context.Context, bucketName 
 	}
 
 	for result.Next() {
-		var object models.Object
+		var object entities.Object
 		var metadataJson json.RawMessage
 		err = result.Scan(&object.Id, &object.Bucket, &object.Name, &object.MimeType, &object.Size, &object.UploadStatus, &metadataJson, &object.CreatedAt, &object.UpdatedAt)
 		if err != nil {
@@ -230,11 +230,11 @@ func (c *DatabaseClient) GetObjectsByBucketName(ctx context.Context, bucketName 
 	return nil, nil
 }
 
-func (c *DatabaseClient) GetObjects(ctx context.Context) (*[]models.Object, error) {
+func (c *DatabaseClient) GetObjects(ctx context.Context) (*[]entities.Object, error) {
 	const Op errors.Op = "postgresql.GetObjects"
-	var objects []models.Object
+	var objects []entities.Object
 
-	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s`, models.ObjectCollection)
+	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -247,7 +247,7 @@ func (c *DatabaseClient) GetObjects(ctx context.Context) (*[]models.Object, erro
 	}
 
 	for result.Next() {
-		var object models.Object
+		var object entities.Object
 		var metadataJson json.RawMessage
 		err = result.Scan(&object.Id, &object.Bucket, &object.Name, &object.MimeType, &object.Size, &object.UploadStatus, &metadataJson, &object.CreatedAt, &object.UpdatedAt)
 		if err != nil {
