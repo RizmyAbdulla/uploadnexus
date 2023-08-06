@@ -9,6 +9,7 @@ import (
 type IObjectHandler interface {
 	CreatePresignedPutObject(ctx *fiber.Ctx) error
 	CreatePresignedGetObject(ctx *fiber.Ctx) error
+	DeleteObject(ctx *fiber.Ctx) error
 }
 
 type ObjectHandler struct {
@@ -54,6 +55,25 @@ func (h *ObjectHandler) CreatePresignedGetObject(ctx *fiber.Ctx) error {
 	}
 
 	response, err := h.objectService.CreatePreSignedGetObject(ctx.Context(), bucketName, wildCard)
+	if err != nil {
+		return ctx.Status(err.Code).JSON(err)
+	}
+
+	return ctx.Status(response.Code).JSON(response)
+}
+
+func (h *ObjectHandler) DeleteObject(ctx *fiber.Ctx) error {
+	bucketName, err := utils.GetParamBucketName(ctx)
+	if err != nil {
+		return ctx.Status(err.Code).JSON(err)
+	}
+
+	wildCard, err := utils.GetParamWildcard(ctx)
+	if err != nil {
+		return ctx.Status(err.Code).JSON(err)
+	}
+
+	response, err := h.objectService.DeleteObject(ctx.Context(), bucketName, wildCard)
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}

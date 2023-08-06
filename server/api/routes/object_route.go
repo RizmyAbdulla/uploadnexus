@@ -17,5 +17,5 @@ func RegisterObjectRoutes(api fiber.Router) {
 	objectRoute := api.Group("/object")
 	objectRoute.Post("/sign/:bucket_name/*", objectHandler.CreatePresignedPutObject)
 	objectRoute.Get("/sign/:bucket_name/*", objectHandler.CreatePresignedGetObject)
-	objectRoute.Delete("/:bucket_name/*", nil)
+	objectRoute.Delete("/:bucket_name/*", objectHandler.DeleteObject)
 }
