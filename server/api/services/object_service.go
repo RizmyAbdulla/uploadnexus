@@ -14,7 +14,6 @@ import (
 
 type IObjectService interface {
 	CreatePreSignedPutObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError)
-	ConfirmPreSignedPutObject(ctx context.Context, preSignedPutObjectCreate models.PreSignedObjectCreate) (*models.GeneralResponse, *errors.HttpError)
 	CreatePreSignedGetObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError)
 }
 
@@ -77,10 +76,6 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 	}
 
 	return models.NewGeneralResponse(constants.StatusOK, "pre-signed put object created", preSignedPutObject), nil
-}
-
-func (s *ObjectService) ConfirmPreSignedPutObject(ctx context.Context, preSignedPutObjectCreate models.PreSignedObjectCreate) (*models.GeneralResponse, *errors.HttpError) {
-	return nil, nil
 }
 
 func (s *ObjectService) CreatePreSignedGetObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError) {
