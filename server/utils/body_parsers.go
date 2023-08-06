@@ -1,12 +1,12 @@
 package utils
 
 import (
+	"encoding/json"
 	"github.com/ArkamFahry/uploadnexus/server/errors"
-	"github.com/gofiber/fiber/v2"
 )
 
-func ParseRequestBody(ctx *fiber.Ctx, data interface{}) *errors.HttpError {
-	err := ctx.BodyParser(data)
+func ParseRequestBody(body []byte, data interface{}) *errors.HttpError {
+	err := json.Unmarshal(body, data)
 	if err != nil {
 		return errors.NewBadRequestError("invalid request body", err)
 	}
