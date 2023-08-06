@@ -8,6 +8,7 @@ const (
 
 const ObjectCollection = "objects"
 
+// Object model for objects collection in database
 type Object struct {
 	Id           string      `json:"id" db:"id"`
 	Bucket       string      `json:"bucket" db:"bucket"`
