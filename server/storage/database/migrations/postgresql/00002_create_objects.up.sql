@@ -6,7 +6,7 @@ create table if not exists objects
     mime_type     varchar(255) not null,
     size          bigint       not null,
     upload_status varchar(255) not null,
-    metadata      text,
+    metadata      jsonb,
     created_at    bigint       not null,
     updated_at    bigint,
     unique (bucket, name)
