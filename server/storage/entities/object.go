@@ -1,11 +1,5 @@
 package entities
 
-const (
-	UploadStatusPending   = "pending"
-	UploadStatusCompleted = "completed"
-	UploadStatusFailed    = "failed"
-)
-
 const ObjectCollection = "objects"
 
 // Object model for objects collection in database
