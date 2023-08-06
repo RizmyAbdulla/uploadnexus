@@ -11,14 +11,14 @@ import (
 func (c *DatabaseClient) CreateBucket(ctx context.Context, bucket models.Bucket) error {
 	const Op errors.Op = "postgresql.CreateBucket"
 
-	query := fmt.Sprintf(`INSERT INTO %s (id, name, description, allowed_mime_types, file_size_limit, is_public, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7)`, models.BucketCollection)
+	query := fmt.Sprintf(`INSERT INTO %s (id, name, description, allowed_mime_types, allowed_object_size, is_public, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7)`, models.BucketCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
 		return errors.NewError(Op, "failed to prepare statement", err)
 	}
 
-	_, err = stmt.ExecContext(ctx, bucket.Id, bucket.Name, bucket.Description, pq.Array(bucket.AllowedMimeTypes), bucket.FileSizeLimit, bucket.IsPublic, bucket.CreatedAt)
+	_, err = stmt.ExecContext(ctx, bucket.Id, bucket.Name, bucket.Description, pq.Array(bucket.AllowedMimeTypes), bucket.AllowedObjectSize, bucket.IsPublic, bucket.CreatedAt)
 	if err != nil {
 		return errors.NewError(Op, "failed to create bucket", err)
 	}
@@ -29,14 +29,14 @@ func (c *DatabaseClient) CreateBucket(ctx context.Context, bucket models.Bucket)
 func (c *DatabaseClient) UpdateBucket(ctx context.Context, bucket models.Bucket) error {
 	const Op errors.Op = "postgresql.UpdateBucket"
 
-	query := fmt.Sprintf(`UPDATE %s SET name = $1, description = $2, allowed_mime_types = $3, file_size_limit = $4, is_public = $5, updated_at = $6 WHERE id = $7`, models.BucketCollection)
+	query := fmt.Sprintf(`UPDATE %s SET name = $1, description = $2, allowed_mime_types = $3, allowed_object_size = $4, is_public = $5, updated_at = $6 WHERE id = $7`, models.BucketCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
 		return errors.NewError(Op, "failed to prepare statement", err)
 	}
 
-	_, err = stmt.ExecContext(ctx, bucket.Name, bucket.Description, pq.Array(bucket.AllowedMimeTypes), bucket.FileSizeLimit, bucket.IsPublic, bucket.UpdatedAt, bucket.Id)
+	_, err = stmt.ExecContext(ctx, bucket.Name, bucket.Description, pq.Array(bucket.AllowedMimeTypes), bucket.AllowedObjectSize, bucket.IsPublic, bucket.UpdatedAt, bucket.Id)
 	if err != nil {
 		return errors.NewError(Op, "failed to update bucket", err)
 	}
@@ -90,7 +90,7 @@ func (c *DatabaseClient) GetBucketById(ctx context.Context, id string) (*models.
 	var bucket models.Bucket
 	var allowedMimeTypes pq.StringArray
 
-	query := fmt.Sprintf(`SELECT id, name, description, allowed_mime_types, file_size_limit, is_public, created_at, updated_at FROM %s WHERE id = $1`, models.BucketCollection)
+	query := fmt.Sprintf(`SELECT id, name, description, allowed_mime_types, allowed_object_size, is_public, created_at, updated_at FROM %s WHERE id = $1`, models.BucketCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -98,7 +98,7 @@ func (c *DatabaseClient) GetBucketById(ctx context.Context, id string) (*models.
 	}
 
 	result := stmt.QueryRowContext(ctx, id)
-	err = result.Scan(&bucket.Id, &bucket.Name, &bucket.Description, &allowedMimeTypes, &bucket.FileSizeLimit, &bucket.IsPublic, &bucket.CreatedAt, &bucket.UpdatedAt)
+	err = result.Scan(&bucket.Id, &bucket.Name, &bucket.Description, &allowedMimeTypes, &bucket.AllowedObjectSize, &bucket.IsPublic, &bucket.CreatedAt, &bucket.UpdatedAt)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to get bucket by id", err)
 	}
@@ -136,7 +136,7 @@ func (c *DatabaseClient) GetBucketByName(ctx context.Context, name string) (*mod
 	var bucket models.Bucket
 	var allowedMimeTypes pq.StringArray
 
-	query := fmt.Sprintf(`SELECT id, name, description, allowed_mime_types, file_size_limit, is_public, created_at, updated_at FROM %s WHERE name = $1`, models.BucketCollection)
+	query := fmt.Sprintf(`SELECT id, name, description, allowed_mime_types, allowed_object_size, is_public, created_at, updated_at FROM %s WHERE name = $1`, models.BucketCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -144,7 +144,7 @@ func (c *DatabaseClient) GetBucketByName(ctx context.Context, name string) (*mod
 	}
 
 	result := stmt.QueryRowContext(ctx, name)
-	err = result.Scan(&bucket.Id, &bucket.Name, &bucket.Description, &allowedMimeTypes, &bucket.FileSizeLimit, &bucket.IsPublic, &bucket.CreatedAt, &bucket.UpdatedAt)
+	err = result.Scan(&bucket.Id, &bucket.Name, &bucket.Description, &allowedMimeTypes, &bucket.AllowedObjectSize, &bucket.IsPublic, &bucket.CreatedAt, &bucket.UpdatedAt)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to get bucket by name", err)
 	}
@@ -158,7 +158,7 @@ func (c *DatabaseClient) GetBuckets(ctx context.Context) (*[]models.Bucket, erro
 	const Op errors.Op = "postgresql.GetBuckets"
 	var buckets []models.Bucket
 
-	query := fmt.Sprintf(`SELECT id, name, description, allowed_mime_types, file_size_limit, is_public, created_at, updated_at FROM %s`, models.BucketCollection)
+	query := fmt.Sprintf(`SELECT id, name, description, allowed_mime_types, allowed_object_size, is_public, created_at, updated_at FROM %s`, models.BucketCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -173,7 +173,7 @@ func (c *DatabaseClient) GetBuckets(ctx context.Context) (*[]models.Bucket, erro
 	for rows.Next() {
 		var bucket models.Bucket
 		var allowedMimeTypes pq.StringArray
-		err := rows.Scan(&bucket.Id, &bucket.Name, &bucket.Description, &allowedMimeTypes, &bucket.FileSizeLimit, &bucket.IsPublic, &bucket.CreatedAt, &bucket.UpdatedAt)
+		err := rows.Scan(&bucket.Id, &bucket.Name, &bucket.Description, &allowedMimeTypes, &bucket.AllowedObjectSize, &bucket.IsPublic, &bucket.CreatedAt, &bucket.UpdatedAt)
 		if err != nil {
 			return nil, errors.NewError(Op, "failed to get bucket", err)
 		}
