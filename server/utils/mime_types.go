@@ -7,52 +7,55 @@ import (
 	"strings"
 )
 
-func GetMimeType(objectName string) (bool, string) {
-	mimeType := mime.TypeByExtension(objectName)
-
+func GetMimeTypeByExtension(extension string) (string, error) {
+	mimeType := mime.TypeByExtension(extension)
 	if mimeType == "" {
-		return false, ""
+		return "", fmt.Errorf("unknown extension: %s", extension)
 	}
-
-	return true, mimeType
+	return mimeType, nil
 }
 
-func ValidateMimeTypes(mimeTypes []string) (bool, string) {
+func ValidateMimeTypes(mimeTypes []string) (bool, error) {
 	mimeTypePattern := regexp.MustCompile(`^[a-zA-Z0-9-]+/[a-zA-Z0-9-+]+$`)
 
 	if len(mimeTypes) == 0 {
-		return true, ""
-	}
-
-	if len(mimeTypes) == 1 && mimeTypes[0] == "*" {
-		return true, ""
+		return true, nil
 	}
 
 	for _, mimeType := range mimeTypes {
+		if mimeType == "*" || strings.HasSuffix(mimeType, "/*") {
+			continue // Wildcard allows any MIME type
+		}
 		if !mimeTypePattern.MatchString(mimeType) {
-			return false, fmt.Sprintf(`'%s' is invalid mime type`, mimeType)
+			return false, fmt.Errorf(`'%s' is an invalid mime type`, mimeType)
 		}
 	}
 
-	return true, ""
+	return true, nil
 }
 
-func ValidateAllowedMimeTypes(mimeType string, allowedMimeTypes []string) (bool, string) {
+func ValidateAllowedMimeTypes(mimeType string, allowedMimeTypes []string) (bool, error) {
 	if len(allowedMimeTypes) == 0 {
-		return true, ""
+		return true, nil
 	}
 
 	if len(allowedMimeTypes) == 1 && allowedMimeTypes[0] == "*" {
-		return true, ""
+		return true, nil
 	}
 
 	mimeType = strings.ToLower(mimeType)
 
 	for _, allowed := range allowedMimeTypes {
-		if mimeType == strings.ToLower(allowed) {
-			return true, ""
+		allowed = strings.ToLower(allowed)
+		if allowed == "*" || strings.HasSuffix(allowed, "/*") {
+			prefix := strings.TrimSuffix(allowed, "/*")
+			if len(prefix) == 0 || strings.HasPrefix(mimeType, prefix) {
+				return true, nil
+			}
+		} else if mimeType == allowed {
+			return true, nil
 		}
 	}
 
-	return false, fmt.Sprintf(`expected mime types '%s' but got '%s'`, strings.Join(allowedMimeTypes, ","), mimeType)
+	return false, fmt.Errorf(`expected mime types '%s' but got '%s'`, strings.Join(allowedMimeTypes, ","), mimeType)
 }
