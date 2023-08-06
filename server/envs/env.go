@@ -50,6 +50,14 @@ func InitEnv() error {
 		env.ObjectStoreRegion = "us-east-1"
 	}
 
+	if env.PresignedPutObjectExpiration == 0 {
+		env.PresignedPutObjectExpiration = 3600
+	}
+
+	if env.PresignedGetObjectExpiration == 0 {
+		env.PresignedGetObjectExpiration = 3600
+	}
+
 	if env.CacheType == "" {
 		env.CacheType = "redis"
 	}
