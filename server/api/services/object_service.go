@@ -115,7 +115,15 @@ func (s *ObjectService) CreatePreSignedGetObject(ctx context.Context, bucketName
 }
 
 func (s *ObjectService) DeleteObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError) {
-	exists, err := s.databaseClient.CheckIfObjectExistsByBucketNameAndObjectName(ctx, bucketName, objectName)
+	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketName)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to check if bucket exists", nil)
+	}
+	if !exists {
+		return nil, errors.NewBadRequestError("bucket with name '"+bucketName+"' does not exist", nil)
+	}
+
+	exists, err = s.databaseClient.CheckIfObjectExistsByBucketNameAndObjectName(ctx, bucketName, objectName)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if object exists", nil)
 	}
