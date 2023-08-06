@@ -6,12 +6,13 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/errors"
 	"github.com/ArkamFahry/uploadnexus/server/models"
 	"github.com/ArkamFahry/uploadnexus/server/storage/database/clients"
+	"github.com/ArkamFahry/uploadnexus/server/storage/entities"
 	"github.com/ArkamFahry/uploadnexus/server/utils"
 )
 
 type IBucketService interface {
-	CreateBucket(ctx context.Context, bucketDto models.BucketCreate) (*models.GeneralResponse, *errors.HttpError)
-	UpdateBucket(ctx context.Context, id string, bucketDto models.BucketCreate) (*models.GeneralResponse, *errors.HttpError)
+	CreateBucket(ctx context.Context, bucketCreate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError)
+	UpdateBucket(ctx context.Context, id string, bucketUpdate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError)
 	DeleteBucket(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError)
 	GetBucketById(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError)
 	GetBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError)
@@ -29,46 +30,42 @@ func NewBucketService(databaseClient clients.DatabaseClient) *BucketService {
 	}
 }
 
-func (s *BucketService) CreateBucket(ctx context.Context, bucketDto models.BucketCreate) (*models.GeneralResponse, *errors.HttpError) {
-	validate, err := utils.ValidateModel(bucketDto)
+func (s *BucketService) CreateBucket(ctx context.Context, bucketCreate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError) {
+	validate, err := utils.ValidateModel(bucketCreate)
 	if err != nil {
 		return nil, errors.NewBadRequestError("invalid input", validate)
 	}
 
-	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketDto.Name)
+	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketCreate.Name)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists by name", nil)
 	}
 	if exists {
-		return nil, errors.NewBadRequestError("bucket with the name '"+bucketDto.Name+"' already exists", nil)
+		return nil, errors.NewBadRequestError("bucket with the name '"+bucketCreate.Name+"' already exists", nil)
 	}
 
-	if len(bucketDto.AllowedMimeTypes) != 0 {
-		isValid, invalidMimeType := utils.ValidateMimeTypes(bucketDto.AllowedMimeTypes)
+	if len(bucketCreate.AllowedMimeTypes) != 0 {
+		isValid, invalidMimeType := utils.ValidateMimeTypes(bucketCreate.AllowedMimeTypes)
 		if !isValid {
 			return nil, errors.NewBadRequestError("invalid mime types", invalidMimeType)
 		}
 	}
 
-	if &bucketDto.IsPublic == nil {
-		bucketDto.IsPublic = false
+	if &bucketCreate.IsPublic == nil {
+		bucketCreate.IsPublic = false
 	}
 
-	if len(bucketDto.AllowedMimeTypes) == 0 {
-		bucketDto.AllowedMimeTypes = []string{"*"}
+	if len(bucketCreate.AllowedMimeTypes) == 0 {
+		bucketCreate.AllowedMimeTypes = []string{"*"}
 	}
 
-	if &bucketDto.AllowedObjectSize == nil {
-		bucketDto.AllowedObjectSize = 0
-	}
-
-	bucket := models.Bucket{
+	bucket := entities.Bucket{
 		Id:                utils.GetUUID(),
-		Name:              bucketDto.Name,
-		Description:       bucketDto.Description,
-		AllowedMimeTypes:  bucketDto.AllowedMimeTypes,
-		AllowedObjectSize: bucketDto.AllowedObjectSize,
-		IsPublic:          bucketDto.IsPublic,
+		Name:              bucketCreate.Name,
+		Description:       bucketCreate.Description,
+		AllowedMimeTypes:  &bucketCreate.AllowedMimeTypes,
+		AllowedObjectSize: &bucketCreate.AllowedObjectSize,
+		IsPublic:          bucketCreate.IsPublic,
 		CreatedAt:         utils.GetTimeUnix(),
 	}
 
@@ -80,7 +77,7 @@ func (s *BucketService) CreateBucket(ctx context.Context, bucketDto models.Bucke
 	return models.NewGeneralResponse(constants.StatusCreated, "bucket created successfully", bucket), nil
 }
 
-func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketDto models.BucketCreate) (*models.GeneralResponse, *errors.HttpError) {
+func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError) {
 	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists by id", nil)
@@ -89,7 +86,7 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketDto m
 		return nil, errors.NewBadRequestError("bucket with the id '"+id+"' does not exist", nil)
 	}
 
-	validate, err := utils.ValidateModel(bucketDto)
+	validate, err := utils.ValidateModel(bucketUpdate)
 	if err != nil {
 		return nil, errors.NewBadRequestError("invalid input", validate)
 	}
@@ -99,33 +96,33 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketDto m
 		return nil, errors.NewInternalServerError("unable to get bucket by id", nil)
 	}
 
-	if bucketDto.Name != "" {
-		oldBucket.Name = bucketDto.Name
+	if bucketUpdate.Name != "" {
+		oldBucket.Name = bucketUpdate.Name
 	}
 
-	if bucketDto.Description != nil {
-		oldBucket.Description = bucketDto.Description
+	if bucketUpdate.Description != nil {
+		oldBucket.Description = bucketUpdate.Description
 	}
 
-	if len(bucketDto.AllowedMimeTypes) != 0 {
-		isValid, invalidMimeType := utils.ValidateMimeTypes(bucketDto.AllowedMimeTypes)
+	if len(bucketUpdate.AllowedMimeTypes) != 0 {
+		isValid, invalidMimeType := utils.ValidateMimeTypes(bucketUpdate.AllowedMimeTypes)
 		if !isValid {
 			return nil, errors.NewBadRequestError("invalid mime types", invalidMimeType)
 		}
-		oldBucket.AllowedMimeTypes = bucketDto.AllowedMimeTypes
+		oldBucket.AllowedMimeTypes = &bucketUpdate.AllowedMimeTypes
 	}
 
-	if bucketDto.AllowedObjectSize != 0 {
-		oldBucket.AllowedObjectSize = bucketDto.AllowedObjectSize
+	if bucketUpdate.AllowedObjectSize != 0 {
+		oldBucket.AllowedObjectSize = &bucketUpdate.AllowedObjectSize
 	}
 
-	if &bucketDto.IsPublic != nil {
-		oldBucket.IsPublic = bucketDto.IsPublic
+	if &bucketUpdate.IsPublic != nil {
+		oldBucket.IsPublic = bucketUpdate.IsPublic
 	}
 
-	oldBucket.UpdatedAt = utils.GetTimeUnix()
+	*oldBucket.UpdatedAt = utils.GetTimeUnix()
 
-	newBucket := models.Bucket{
+	newBucket := entities.Bucket{
 		Id:                oldBucket.Id,
 		Name:              oldBucket.Name,
 		Description:       oldBucket.Description,
