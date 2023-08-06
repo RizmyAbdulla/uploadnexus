@@ -115,18 +115,18 @@ func (c *DatabaseClient) GetObjectById(ctx context.Context, id string) (*entitie
 	return &object, nil
 }
 
-func (c *DatabaseClient) CheckIfObjectExistsByName(ctx context.Context, name string) (bool, error) {
-	const Op errors.Op = "postgresql.CheckIfObjectExistsByName"
+func (c *DatabaseClient) CheckIfObjectExistsByBucketNameAndObjectName(ctx context.Context, bucketName string, objectName string) (bool, error) {
+	const Op errors.Op = "postgresql.CheckIfObjectExistsByBucketNameAndObjectName"
 	var exists bool
 
-	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE name = $1)`, entities.ObjectCollection)
+	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE bucket = $1 AND name = $2)`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
 		return false, errors.NewError(Op, "failed to prepare statement", err)
 	}
 
-	result := stmt.QueryRowContext(ctx, name)
+	result := stmt.QueryRowContext(ctx, bucketName, objectName)
 	err = result.Scan(&exists)
 	if err != nil {
 		return false, errors.NewError(Op, "failed to check if object exists by name", err)
@@ -138,19 +138,19 @@ func (c *DatabaseClient) CheckIfObjectExistsByName(ctx context.Context, name str
 	return false, nil
 }
 
-func (c *DatabaseClient) GetObjectByName(ctx context.Context, name string) (*entities.Object, error) {
+func (c *DatabaseClient) GetObjectByBucketNameAndObjectName(ctx context.Context, bucketName string, objectName string) (*entities.Object, error) {
 	const Op errors.Op = "postgresql.GetObjectByName"
 	var object entities.Object
 	var metadataJson json.RawMessage
 
-	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE name = $1`, entities.ObjectCollection)
+	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = $1 AND name = $2`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to prepare statement", err)
 	}
 
-	result := stmt.QueryRowContext(ctx, name)
+	result := stmt.QueryRowContext(ctx, bucketName, objectName)
 	err = result.Scan(&object.Id, &object.Bucket, &object.Name, &object.MimeType, &object.Size, &object.UploadStatus, &metadataJson, &object.CreatedAt, &object.UpdatedAt)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to get object by name", err)
