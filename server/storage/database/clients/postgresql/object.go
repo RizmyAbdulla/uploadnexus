@@ -161,7 +161,7 @@ func (c *DatabaseClient) GetObjectByBucketNameAndObjectName(ctx context.Context,
 		return nil, errors.NewError(Op, "failed to unmarshal metadata", err)
 	}
 
-	return nil, nil
+	return &object, nil
 }
 
 func (c *DatabaseClient) GetObjectsByBucketId(ctx context.Context, bucketId string) (*[]entities.Object, error) {
@@ -227,7 +227,7 @@ func (c *DatabaseClient) GetObjectsByBucketName(ctx context.Context, bucketName 
 		objects = append(objects, object)
 	}
 
-	return nil, nil
+	return &objects, nil
 }
 
 func (c *DatabaseClient) GetObjects(ctx context.Context) (*[]entities.Object, error) {
