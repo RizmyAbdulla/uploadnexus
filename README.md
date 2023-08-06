@@ -15,3 +15,5 @@
 - [ ] File Locker for concurrent Resumable File uploads
 - [ ] Caching With Redis
 - [ ] Multiple Database support
+- [ ] Advance Pluggable Auth Layer
+- [ ] UI Dashboard
