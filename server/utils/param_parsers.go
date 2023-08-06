@@ -32,3 +32,30 @@ func GetParamName(ctx *fiber.Ctx) (string, *errors.HttpError) {
 	}
 	return unescapedName, nil
 }
+
+func GetParamBucketName(ctx *fiber.Ctx) (string, *errors.HttpError) {
+	bucketName := ctx.Params("bucket_name")
+	unescapedBucketName, err := url.QueryUnescape(bucketName)
+	if err != nil {
+		return "", errors.NewBadRequestError("invalid parameter", nil)
+	}
+
+	if unescapedBucketName == "" {
+		return "", errors.NewBadRequestError("invalid parameter", nil)
+	}
+	return unescapedBucketName, nil
+}
+
+func GetParamWildcard(ctx *fiber.Ctx) (string, *errors.HttpError) {
+	wildCard := ctx.Params("*")
+	unescapedWildcard, err := url.QueryUnescape(wildCard)
+	if err != nil {
+		return "", errors.NewBadRequestError("invalid parameter", nil)
+	}
+
+	if unescapedWildcard == "" {
+		return "", errors.NewBadRequestError("invalid parameter", nil)
+	}
+
+	return unescapedWildcard, nil
+}
