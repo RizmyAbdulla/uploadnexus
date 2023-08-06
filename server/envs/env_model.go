@@ -28,8 +28,8 @@ type Env struct {
 
 	BucketName string `json:"BUCKET_NAME" mapstructure:"BUCKET_NAME"`
 
-	PresignedPutUrlExpiration int64 `json:"PRESIGNED_PUT_URL_EXPIRATION" mapstructure:"PRESIGNED_PUT_URL_EXPIRATION"`
-	PresignedGetUrlExpiration int64 `json:"PRESIGNED_GET_URL_EXPIRATION" mapstructure:"PRESIGNED_GET_URL_EXPIRATION"`
+	PresignedPutObjectExpiration int64 `json:"PRESIGNED_PUT_OBJECT_EXPIRATION" mapstructure:"PRESIGNED_PUT_OBJECT_EXPIRATION"`
+	PresignedGetObjectExpiration int64 `json:"PRESIGNED_GET_OBJECT_EXPIRATION" mapstructure:"PRESIGNED_GET_OBJECT_EXPIRATION"`
 
 	CacheType     string `json:"CACHE_TYPE" mapstructure:"CACHE_TYPE"`
 	CacheHost     string `json:"CACHE_HOST" mapstructure:"CACHE_HOST"`
