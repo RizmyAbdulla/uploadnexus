@@ -11,13 +11,12 @@ import (
 func (c *S3Client) CreatePresignedPutObject(ctx context.Context, bucketName string, objectName string, expiry int64) (string, error) {
 	const Op errors.Op = "objectstore.CreatePresignedPutObject"
 
-	expiryTime := time.Unix(expiry, 0)
+	expiryDuration := time.Duration(expiry) * time.Second
 
 	url, err := c.s3PresignedClient.PresignPutObject(ctx, &s3.PutObjectInput{
-		Bucket:  aws.String(bucketName),
-		Key:     aws.String(objectName),
-		Expires: &expiryTime,
-	})
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(objectName),
+	}, s3.WithPresignExpires(expiryDuration))
 	if err != nil {
 		return "", errors.NewError(Op, "failed to create presigned put url", err)
 	}
@@ -28,10 +27,12 @@ func (c *S3Client) CreatePresignedPutObject(ctx context.Context, bucketName stri
 func (c *S3Client) CratedPresignedGetObject(ctx context.Context, bucketName string, objectName string, expiry int64) (string, error) {
 	const Op errors.Op = "objectstore.CreatePresignedPutObject"
 
+	expiryDuration := time.Duration(expiry) * time.Second
+
 	url, err := c.s3PresignedClient.PresignGetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectName),
-	})
+	}, s3.WithPresignExpires(expiryDuration))
 	if err != nil {
 		return "", errors.NewError(Op, "failed to create presigned get url", err)
 	}
