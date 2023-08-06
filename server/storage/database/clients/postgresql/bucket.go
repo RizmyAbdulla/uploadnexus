@@ -149,7 +149,7 @@ func (c *DatabaseClient) GetBucketByName(ctx context.Context, name string) (*ent
 		return nil, errors.NewError(Op, "failed to get bucket by name", err)
 	}
 
-	*bucket.AllowedMimeTypes = allowedMimeTypes
+	bucket.AllowedMimeTypes = (*[]string)(&allowedMimeTypes)
 
 	return &bucket, nil
 }
@@ -177,7 +177,7 @@ func (c *DatabaseClient) GetBuckets(ctx context.Context) (*[]entities.Bucket, er
 		if err != nil {
 			return nil, errors.NewError(Op, "failed to get bucket", err)
 		}
-		*bucket.AllowedMimeTypes = allowedMimeTypes
+		bucket.AllowedMimeTypes = (*[]string)(&allowedMimeTypes)
 		buckets = append(buckets, bucket)
 	}
 
