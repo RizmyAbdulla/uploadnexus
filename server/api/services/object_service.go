@@ -40,6 +40,11 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 		return nil, errors.NewBadRequestError("bucket with name '"+bucketName+"' does not exist", nil)
 	}
 
+	bucket, err := s.databaseClient.GetBucketByName(ctx, bucketName)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to get bucket", nil)
+	}
+
 	exists, err = s.databaseClient.CheckIfObjectExistsByBucketNameAndObjectName(ctx, bucketName, objectName)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if object exists", nil)
@@ -58,7 +63,7 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 	err = s.databaseClient.CreateObject(ctx, entities.Object{
 		Id:           utils.GetUUID(),
 		Name:         objectName,
-		Bucket:       bucketName,
+		Bucket:       bucket.Id,
 		MimeType:     "",
 		Size:         0,
 		UploadStatus: models.UploadStatusPending,
