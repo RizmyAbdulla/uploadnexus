@@ -20,8 +20,9 @@ type DatabaseClient interface {
 	DeleteObject(ctx context.Context, id string) error
 	CheckIfObjectExistsById(ctx context.Context, id string) (bool, error)
 	GetObjectById(ctx context.Context, id string) (*models.Object, error)
-	CheckIfObjectExistsByFileKey(ctx context.Context, fileKey string) (bool, error)
-	GetObjectByFileKey(ctx context.Context, fileKey string) (*models.Object, error)
-	GetObjectsByBucketId(ctx context.Context, bucketId string) (*[]models.Bucket, error)
+	CheckIfObjectExistsByName(ctx context.Context, name string) (bool, error)
+	GetObjectByName(ctx context.Context, name string) (*models.Object, error)
+	GetObjectsByBucketId(ctx context.Context, bucketId string) (*[]models.Object, error)
+	GetObjectsByBucketName(ctx context.Context, bucketName string) (*[]models.Object, error)
 	GetObjects(ctx context.Context) (*[]models.Object, error)
 }
