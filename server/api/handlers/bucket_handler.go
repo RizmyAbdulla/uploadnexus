@@ -28,7 +28,7 @@ func NewBucketHandler(bucketService services.IBucketService) *BucketHandler {
 func (h *BucketHandler) CreateBucket(ctx *fiber.Ctx) error {
 	var request models.BucketCreate
 
-	err := utils.ParseRequestBody(ctx, &request)
+	err := utils.ParseRequestBody(ctx.Body(), &request)
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
@@ -49,7 +49,7 @@ func (h *BucketHandler) UpdateBucket(ctx *fiber.Ctx) error {
 		return ctx.Status(err.Code).JSON(err)
 	}
 
-	err = utils.ParseRequestBody(ctx, &request)
+	err = utils.ParseRequestBody(ctx.Body(), &request)
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
