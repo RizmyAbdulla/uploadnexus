@@ -20,18 +20,20 @@ type IBucketService interface {
 
 type BucketService struct {
 	databaseClient clients.DatabaseClient
+	modelValidator utils.IModelValidator
 }
 
 var _ IBucketService = (*BucketService)(nil)
 
-func NewBucketService(databaseClient clients.DatabaseClient) *BucketService {
+func NewBucketService(databaseClient clients.DatabaseClient, modelValidator utils.IModelValidator) *BucketService {
 	return &BucketService{
 		databaseClient: databaseClient,
+		modelValidator: modelValidator,
 	}
 }
 
 func (s *BucketService) CreateBucket(ctx context.Context, bucketCreate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError) {
-	validate, err := utils.ValidateModel(bucketCreate)
+	validate, err := s.modelValidator.ValidateModel(bucketCreate)
 	if err != nil {
 		return nil, errors.NewBadRequestError("invalid input", validate)
 	}
@@ -86,7 +88,7 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdat
 		return nil, errors.NewBadRequestError("bucket with the id '"+id+"' does not exist", nil)
 	}
 
-	validate, err := utils.ValidateModel(bucketUpdate)
+	validate, err := s.modelValidator.ValidateModel(bucketUpdate)
 	if err != nil {
 		return nil, errors.NewBadRequestError("invalid input", validate)
 	}
