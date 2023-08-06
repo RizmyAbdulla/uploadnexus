@@ -7,12 +7,26 @@ import (
 	"strings"
 )
 
-func ValidateModel(modelValidate interface{}) ([]map[string]interface{}, error) {
+type IModelValidator interface {
+	ValidateModel(modelValidate interface{}) ([]map[string]interface{}, error)
+}
+
+type ModelValidator struct {
+	Validator *validator.Validate
+}
+
+func NewModelValidator() *ModelValidator {
+	return &ModelValidator{
+		Validator: validator.New(),
+	}
+}
+
+var _ IModelValidator = (*ModelValidator)(nil)
+
+func (m *ModelValidator) ValidateModel(modelValidate interface{}) ([]map[string]interface{}, error) {
 	var messages []map[string]interface{}
 
-	validate := validator.New()
-
-	err := validate.Struct(modelValidate)
+	err := m.Validator.Struct(modelValidate)
 
 	if err != nil {
 		modelType := reflect.TypeOf(modelValidate)
