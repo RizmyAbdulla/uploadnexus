@@ -58,18 +58,18 @@ func (s *BucketService) CreateBucket(ctx context.Context, bucketDto models.Bucke
 		bucketDto.AllowedMimeTypes = []string{"*"}
 	}
 
-	if &bucketDto.FileSizeLimit == nil {
-		bucketDto.FileSizeLimit = 0
+	if &bucketDto.AllowedObjectSize == nil {
+		bucketDto.AllowedObjectSize = 0
 	}
 
 	bucket := models.Bucket{
-		Id:               utils.GetUUID(),
-		Name:             bucketDto.Name,
-		Description:      bucketDto.Description,
-		AllowedMimeTypes: bucketDto.AllowedMimeTypes,
-		FileSizeLimit:    bucketDto.FileSizeLimit,
-		IsPublic:         bucketDto.IsPublic,
-		CreatedAt:        utils.GetTimeUnix(),
+		Id:                utils.GetUUID(),
+		Name:              bucketDto.Name,
+		Description:       bucketDto.Description,
+		AllowedMimeTypes:  bucketDto.AllowedMimeTypes,
+		AllowedObjectSize: bucketDto.AllowedObjectSize,
+		IsPublic:          bucketDto.IsPublic,
+		CreatedAt:         utils.GetTimeUnix(),
 	}
 
 	err = s.databaseClient.CreateBucket(ctx, bucket)
@@ -115,8 +115,8 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketDto m
 		oldBucket.AllowedMimeTypes = bucketDto.AllowedMimeTypes
 	}
 
-	if bucketDto.FileSizeLimit != 0 {
-		oldBucket.FileSizeLimit = bucketDto.FileSizeLimit
+	if bucketDto.AllowedObjectSize != 0 {
+		oldBucket.AllowedObjectSize = bucketDto.AllowedObjectSize
 	}
 
 	if &bucketDto.IsPublic != nil {
@@ -126,14 +126,14 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketDto m
 	oldBucket.UpdatedAt = utils.GetTimeUnix()
 
 	newBucket := models.Bucket{
-		Id:               oldBucket.Id,
-		Name:             oldBucket.Name,
-		Description:      oldBucket.Description,
-		AllowedMimeTypes: oldBucket.AllowedMimeTypes,
-		FileSizeLimit:    oldBucket.FileSizeLimit,
-		IsPublic:         oldBucket.IsPublic,
-		CreatedAt:        oldBucket.CreatedAt,
-		UpdatedAt:        oldBucket.UpdatedAt,
+		Id:                oldBucket.Id,
+		Name:              oldBucket.Name,
+		Description:       oldBucket.Description,
+		AllowedMimeTypes:  oldBucket.AllowedMimeTypes,
+		AllowedObjectSize: oldBucket.AllowedObjectSize,
+		IsPublic:          oldBucket.IsPublic,
+		CreatedAt:         oldBucket.CreatedAt,
+		UpdatedAt:         oldBucket.UpdatedAt,
 	}
 
 	err = s.databaseClient.UpdateBucket(ctx, newBucket)
