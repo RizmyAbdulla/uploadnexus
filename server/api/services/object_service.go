@@ -15,6 +15,7 @@ import (
 type IObjectService interface {
 	CreatePreSignedPutObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError)
 	CreatePreSignedGetObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError)
+	DeleteObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError)
 }
 
 type ObjectService struct {
@@ -40,11 +41,6 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 		return nil, errors.NewBadRequestError("bucket with name '"+bucketName+"' does not exist", nil)
 	}
 
-	bucket, err := s.databaseClient.GetBucketByName(ctx, bucketName)
-	if err != nil {
-		return nil, errors.NewInternalServerError("unable to get bucket", nil)
-	}
-
 	exists, err = s.databaseClient.CheckIfObjectExistsByBucketNameAndObjectName(ctx, bucketName, objectName)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if object exists", nil)
@@ -63,7 +59,7 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 	err = s.databaseClient.CreateObject(ctx, entities.Object{
 		Id:           utils.GetUUID(),
 		Name:         objectName,
-		Bucket:       bucket.Id,
+		Bucket:       bucketName,
 		MimeType:     "",
 		Size:         0,
 		UploadStatus: models.UploadStatusPending,
@@ -116,4 +112,31 @@ func (s *ObjectService) CreatePreSignedGetObject(ctx context.Context, bucketName
 	}
 
 	return models.NewGeneralResponse(constants.StatusOK, "pre-signed get object created", preSignedPutObject), nil
+}
+
+func (s *ObjectService) DeleteObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError) {
+	exists, err := s.databaseClient.CheckIfObjectExistsByBucketNameAndObjectName(ctx, bucketName, objectName)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to check if object exists", nil)
+	}
+	if !exists {
+		return nil, errors.NewBadRequestError("object with name '"+objectName+"' does not exist in bucket '"+bucketName+"", nil)
+	}
+
+	object, err := s.databaseClient.GetObjectByBucketNameAndObjectName(ctx, bucketName, objectName)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to get object", nil)
+	}
+
+	err = s.databaseClient.DeleteObject(ctx, object.Id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to delete object from database", nil)
+	}
+
+	err = s.objectStoreClient.DeleteObject(ctx, bucketName, objectName)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to delete object from object store", nil)
+	}
+
+	return models.NewGeneralResponse(constants.StatusOK, "object deleted", nil), nil
 }
