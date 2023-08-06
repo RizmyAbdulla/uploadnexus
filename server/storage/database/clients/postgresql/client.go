@@ -31,12 +31,12 @@ func NewClient() (*DatabaseClient, error) {
 
 	err = migrations.MigrateDatabase(migrations.PostgresqlMigrations, migrations.PostgresqlMigrationsFolder, postgresqlUrl)
 	if err != nil {
-		return nil, errors.NewError(Op, errors.Msg("failed to migrate database"), err)
+		return nil, errors.NewError(Op, "failed to migrate database", err)
 	}
 
 	db, err = sql.Open("postgres", postgresqlUrl)
 	if err != nil {
-		return nil, errors.NewError(Op, errors.Msg("failed to open database connection"), err)
+		return nil, errors.NewError(Op, "failed to open database connection", err)
 	}
 
 	return &DatabaseClient{
