@@ -93,7 +93,7 @@ func (s *ObjectService) CreatePreSignedGetObject(ctx context.Context, bucketName
 		return nil, errors.NewInternalServerError("unable to check if object exists")
 	}
 	if !exists {
-		return nil, errors.NewNotFoundError("object with name '" + objectName + "' does not exist in bucket '" + bucketName + "")
+		return nil, errors.NewNotFoundError("object with name '" + objectName + "' does not exist in bucket '" + bucketName + "'")
 	}
 
 	expiry := envs.EnvStoreInstance.GetEnv().PresignedPutObjectExpiration
@@ -128,7 +128,7 @@ func (s *ObjectService) DeleteObject(ctx context.Context, bucketName string, obj
 		return nil, errors.NewInternalServerError("unable to check if object exists")
 	}
 	if !exists {
-		return nil, errors.NewNotFoundError("object with name '" + objectName + "' does not exist in bucket '" + bucketName + "")
+		return nil, errors.NewNotFoundError("object with name '" + objectName + "' does not exist in bucket '" + bucketName + "'")
 	}
 
 	object, err := s.databaseClient.GetObjectByBucketNameAndObjectName(ctx, bucketName, objectName)
