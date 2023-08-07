@@ -16,10 +16,14 @@ func NewHttpError(code int, error string, data interface{}) *HttpError {
 	}
 }
 
-func NewBadRequestError(error string, data interface{}) *HttpError {
-	return NewHttpError(constants.StatusBadRequest, error, data)
+func NewBadRequestError(data interface{}) *HttpError {
+	return NewHttpError(constants.StatusBadRequest, "bad request error", data)
 }
 
-func NewInternalServerError(error string, data interface{}) *HttpError {
-	return NewHttpError(constants.StatusInternalServerError, error, data)
+func NewNotFoundError(data interface{}) *HttpError {
+	return NewHttpError(constants.StatusNotFound, "not found error", data)
+}
+
+func NewInternalServerError(data interface{}) *HttpError {
+	return NewHttpError(constants.StatusInternalServerError, "internal server error", data)
 }

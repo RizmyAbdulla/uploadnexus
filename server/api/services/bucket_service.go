@@ -35,21 +35,21 @@ func NewBucketService(databaseClient clients.DatabaseClient, modelValidator util
 func (s *BucketService) CreateBucket(ctx context.Context, bucketCreate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError) {
 	validate, err := s.modelValidator.ValidateModel(bucketCreate)
 	if err != nil {
-		return nil, errors.NewBadRequestError("invalid input", validate)
+		return nil, errors.NewBadRequestError(validate)
 	}
 
 	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketCreate.Name)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to check if bucket exists by name", nil)
+		return nil, errors.NewInternalServerError("unable to check if bucket exists")
 	}
 	if exists {
-		return nil, errors.NewBadRequestError("bucket with the name '"+bucketCreate.Name+"' already exists", nil)
+		return nil, errors.NewBadRequestError("bucket with the name '" + bucketCreate.Name + "' already exists")
 	}
 
 	if len(bucketCreate.AllowedMimeTypes) != 0 {
 		isValid, invalidMimeType := utils.ValidateMimeTypes(bucketCreate.AllowedMimeTypes)
 		if !isValid {
-			return nil, errors.NewBadRequestError("invalid mime types", invalidMimeType)
+			return nil, errors.NewBadRequestError(invalidMimeType)
 		}
 	}
 
@@ -73,7 +73,7 @@ func (s *BucketService) CreateBucket(ctx context.Context, bucketCreate models.Bu
 
 	err = s.databaseClient.CreateBucket(ctx, bucket)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to create bucket", nil)
+		return nil, errors.NewInternalServerError("unable to create bucket")
 	}
 
 	return models.NewGeneralResponse(constants.StatusCreated, "bucket created successfully", bucket), nil
@@ -82,20 +82,20 @@ func (s *BucketService) CreateBucket(ctx context.Context, bucketCreate models.Bu
 func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError) {
 	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to check if bucket exists by id", nil)
+		return nil, errors.NewInternalServerError("unable to check if bucket exists")
 	}
 	if !exists {
-		return nil, errors.NewBadRequestError("bucket with the id '"+id+"' does not exist", nil)
+		return nil, errors.NewBadRequestError("bucket with the id '" + id + "' does not exist")
 	}
 
 	validate, err := s.modelValidator.ValidateModel(bucketUpdate)
 	if err != nil {
-		return nil, errors.NewBadRequestError("invalid input", validate)
+		return nil, errors.NewBadRequestError(validate)
 	}
 
 	oldBucket, err := s.databaseClient.GetBucketById(ctx, id)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to get bucket by id", nil)
+		return nil, errors.NewInternalServerError("unable to get bucket by id")
 	}
 
 	if bucketUpdate.Name != "" {
@@ -109,7 +109,7 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdat
 	if len(bucketUpdate.AllowedMimeTypes) != 0 {
 		isValid, invalidMimeType := utils.ValidateMimeTypes(bucketUpdate.AllowedMimeTypes)
 		if !isValid {
-			return nil, errors.NewBadRequestError("invalid mime types", invalidMimeType)
+			return nil, errors.NewBadRequestError(invalidMimeType)
 		}
 		oldBucket.AllowedMimeTypes = &bucketUpdate.AllowedMimeTypes
 	}
@@ -137,7 +137,7 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdat
 
 	err = s.databaseClient.UpdateBucket(ctx, newBucket)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to update bucket", nil)
+		return nil, errors.NewInternalServerError("unable to update bucket")
 	}
 
 	return models.NewGeneralResponse(constants.StatusOK, "bucket updated successfully", newBucket), nil
@@ -146,15 +146,15 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdat
 func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError) {
 	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to check if bucket exists by id", nil)
+		return nil, errors.NewInternalServerError("unable to check if bucket exists")
 	}
 	if !exists {
-		return nil, errors.NewBadRequestError("bucket with the id '"+id+"' does not exist", nil)
+		return nil, errors.NewBadRequestError("bucket with the id '" + id + "' does not exist")
 	}
 
 	err = s.databaseClient.DeleteBucket(ctx, id)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to delete bucket", nil)
+		return nil, errors.NewInternalServerError("unable to delete bucket")
 	}
 
 	return models.NewGeneralResponse(constants.StatusNoContent, "bucket deleted successfully", nil), nil
@@ -163,15 +163,15 @@ func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.Ge
 func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError) {
 	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to check if bucket exists by id", nil)
+		return nil, errors.NewInternalServerError("unable to check if bucket exists")
 	}
 	if !exists {
-		return nil, errors.NewBadRequestError("bucket with the id '"+id+"' does not exist", nil)
+		return nil, errors.NewBadRequestError("bucket with the id '" + id + "' does not exist")
 	}
 
 	bucket, err := s.databaseClient.GetBucketById(ctx, id)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to get bucket by id", nil)
+		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
 
 	return models.NewGeneralResponse(constants.StatusOK, "bucket retrieved successfully", bucket), nil
@@ -180,7 +180,7 @@ func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.G
 func (s *BucketService) GetBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError) {
 	buckets, err := s.databaseClient.GetBuckets(ctx)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to get buckets", nil)
+		return nil, errors.NewInternalServerError("unable to get buckets")
 	}
 
 	return models.NewGeneralResponse(constants.StatusOK, "buckets retrieved successfully", buckets), nil
