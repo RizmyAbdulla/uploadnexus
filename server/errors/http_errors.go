@@ -3,27 +3,27 @@ package errors
 import "github.com/ArkamFahry/uploadnexus/server/constants"
 
 type HttpError struct {
-	Code  int         `json:"code"`
-	Error string      `json:"error"`
-	Data  interface{} `json:"data,omitempty"`
+	Code    int         `json:"code"`
+	Error   string      `json:"error"`
+	Message interface{} `json:"message,omitempty"`
 }
 
-func NewHttpError(code int, error string, data interface{}) *HttpError {
+func NewHttpError(code int, error string, message interface{}) *HttpError {
 	return &HttpError{
-		Code:  code,
-		Error: error,
-		Data:  data,
+		Code:    code,
+		Error:   error,
+		Message: message,
 	}
 }
 
-func NewBadRequestError(data interface{}) *HttpError {
-	return NewHttpError(constants.StatusBadRequest, "bad request error", data)
+func NewBadRequestError(message interface{}) *HttpError {
+	return NewHttpError(constants.StatusBadRequest, "bad request error", message)
 }
 
-func NewNotFoundError(data interface{}) *HttpError {
-	return NewHttpError(constants.StatusNotFound, "not found error", data)
+func NewNotFoundError(message interface{}) *HttpError {
+	return NewHttpError(constants.StatusNotFound, "not found error", message)
 }
 
-func NewInternalServerError(data interface{}) *HttpError {
-	return NewHttpError(constants.StatusInternalServerError, "internal server error", data)
+func NewInternalServerError(message interface{}) *HttpError {
+	return NewHttpError(constants.StatusInternalServerError, "internal server error", message)
 }
