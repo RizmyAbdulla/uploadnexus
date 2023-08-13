@@ -64,6 +64,7 @@ func (c *DatabaseClient) DeleteBucket(ctx context.Context, id string) error {
 
 func (c *DatabaseClient) CheckIfBucketExistsById(ctx context.Context, id string) (bool, error) {
 	const Op errors.Op = "postgresql.CheckIfBucketExistsById"
+
 	var exists bool
 
 	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE id = $1)`, entities.BucketCollection)
@@ -87,6 +88,7 @@ func (c *DatabaseClient) CheckIfBucketExistsById(ctx context.Context, id string)
 
 func (c *DatabaseClient) GetBucketById(ctx context.Context, id string) (*entities.Bucket, error) {
 	const Op errors.Op = "postgresql.GetBucketById"
+
 	var bucket entities.Bucket
 	var allowedMimeTypes pq.StringArray
 
@@ -95,6 +97,7 @@ func (c *DatabaseClient) GetBucketById(ctx context.Context, id string) (*entitie
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to prepare statement", err)
+
 	}
 
 	result := stmt.QueryRowContext(ctx, id)
@@ -103,13 +106,14 @@ func (c *DatabaseClient) GetBucketById(ctx context.Context, id string) (*entitie
 		return nil, errors.NewError(Op, "failed to get bucket by id", err)
 	}
 
-	*bucket.AllowedMimeTypes = allowedMimeTypes
+	bucket.AllowedMimeTypes = (*[]string)(&allowedMimeTypes)
 
 	return &bucket, nil
 }
 
 func (c *DatabaseClient) CheckIfBucketExistsByName(ctx context.Context, name string) (bool, error) {
 	const Op errors.Op = "postgresql.CheckIfBucketExistsByName"
+
 	var exists bool
 
 	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE name = $1)`, entities.BucketCollection)
@@ -133,6 +137,7 @@ func (c *DatabaseClient) CheckIfBucketExistsByName(ctx context.Context, name str
 
 func (c *DatabaseClient) GetBucketByName(ctx context.Context, name string) (*entities.Bucket, error) {
 	const Op errors.Op = "postgresql.GetBucketByName"
+
 	var bucket entities.Bucket
 	var allowedMimeTypes pq.StringArray
 
@@ -154,8 +159,9 @@ func (c *DatabaseClient) GetBucketByName(ctx context.Context, name string) (*ent
 	return &bucket, nil
 }
 
-func (c *DatabaseClient) GetBuckets(ctx context.Context) (*[]entities.Bucket, error) {
-	const Op errors.Op = "postgresql.GetBuckets"
+func (c *DatabaseClient) ListBuckets(ctx context.Context) (*[]entities.Bucket, error) {
+	const Op errors.Op = "postgresql.ListBuckets"
+
 	var buckets []entities.Bucket
 
 	query := fmt.Sprintf(`SELECT id, name, description, allowed_mime_types, allowed_object_size, is_public, created_at, updated_at FROM %s`, entities.BucketCollection)
