@@ -4,7 +4,6 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/api/services"
 	"github.com/ArkamFahry/uploadnexus/server/storage/database"
 	"github.com/ArkamFahry/uploadnexus/server/storage/objectstore"
-	"github.com/ArkamFahry/uploadnexus/server/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -39,17 +38,10 @@ func RegisterObjectRoutes(api fiber.Router) {
 }
 
 func (h *ObjectHandler) CreatePresignedPutObject(ctx *fiber.Ctx) error {
-	bucketName, err := utils.GetParamBucketName(ctx)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
+	bucketName := ctx.Params("bucket_name")
+	objectName := ctx.Params("*")
 
-	wildCard, err := utils.GetParamWildcard(ctx)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
-
-	response, err := h.objectService.CreatePreSignedPutObject(ctx.Context(), bucketName, wildCard)
+	response, err := h.objectService.CreatePreSignedPutObject(ctx.Context(), bucketName, objectName)
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
@@ -58,17 +50,10 @@ func (h *ObjectHandler) CreatePresignedPutObject(ctx *fiber.Ctx) error {
 }
 
 func (h *ObjectHandler) CreatePresignedGetObject(ctx *fiber.Ctx) error {
-	bucketName, err := utils.GetParamBucketName(ctx)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
+	bucketName := ctx.Params("bucket_name")
+	objectName := ctx.Params("*")
 
-	wildCard, err := utils.GetParamWildcard(ctx)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
-
-	response, err := h.objectService.CreatePreSignedGetObject(ctx.Context(), bucketName, wildCard)
+	response, err := h.objectService.CreatePreSignedGetObject(ctx.Context(), bucketName, objectName)
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
@@ -77,17 +62,10 @@ func (h *ObjectHandler) CreatePresignedGetObject(ctx *fiber.Ctx) error {
 }
 
 func (h *ObjectHandler) DeleteObject(ctx *fiber.Ctx) error {
-	bucketName, err := utils.GetParamBucketName(ctx)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
+	bucketName := ctx.Params("bucket_name")
+	objectName := ctx.Params("*")
 
-	wildCard, err := utils.GetParamWildcard(ctx)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
-
-	response, err := h.objectService.DeleteObject(ctx.Context(), bucketName, wildCard)
+	response, err := h.objectService.DeleteObject(ctx.Context(), bucketName, objectName)
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
