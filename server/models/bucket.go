@@ -7,3 +7,11 @@ type BucketCreate struct {
 	AllowedObjectSize int64    `json:"allowed_object_size,omitempty"`
 	IsPublic          bool     `json:"is_public,omitempty"`
 }
+
+type BucketUpdate struct {
+	Name              string   `json:"name,omitempty"`
+	Description       *string  `json:"description,omitempty"`
+	AllowedMimeTypes  []string `json:"allowed_mime_types,omitempty"`
+	AllowedObjectSize int64    `json:"allowed_object_size,omitempty"`
+	IsPublic          bool     `json:"is_public,omitempty"`
+}
