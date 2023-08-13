@@ -1,6 +1,9 @@
 package errors
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/rs/zerolog/log"
+)
 
 type Op string
 type Msg string
@@ -17,9 +20,13 @@ func (e *Error) Error() string {
 }
 
 func NewError(Op Op, Msg Msg, Err Err) error {
-	return &Error{
+	Error := &Error{
 		Op:  Op,
 		Msg: Msg,
 		Err: Err,
 	}
+
+	log.Error().Msg(Error.Error())
+
+	return Error
 }
