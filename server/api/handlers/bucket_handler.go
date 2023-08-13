@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/ArkamFahry/uploadnexus/server/api/services"
-	"github.com/ArkamFahry/uploadnexus/server/models"
 	"github.com/ArkamFahry/uploadnexus/server/storage/database"
 	"github.com/ArkamFahry/uploadnexus/server/utils"
 	"github.com/gofiber/fiber/v2"
@@ -36,19 +35,12 @@ func RegisterBucketRoutes(api fiber.Router) {
 	bucketRouter.Post("/", bucketHandler.CreateBucket)
 	bucketRouter.Patch("/:id", bucketHandler.UpdateBucket)
 	bucketRouter.Delete("/:id", bucketHandler.DeleteBucket)
-	bucketRouter.Get("/", bucketHandler.GetBuckets)
 	bucketRouter.Get("/:id", bucketHandler.GetBucketById)
+	bucketRouter.Get("/", bucketHandler.ListBuckets)
 }
 
 func (h *BucketHandler) CreateBucket(ctx *fiber.Ctx) error {
-	var request models.BucketCreate
-
-	err := utils.ParseRequestBody(ctx.Body(), &request)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
-
-	response, err := h.bucketService.CreateBucket(ctx.Context(), request)
+	response, err := h.bucketService.CreateBucket(ctx.Context(), ctx.Body())
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
@@ -57,19 +49,9 @@ func (h *BucketHandler) CreateBucket(ctx *fiber.Ctx) error {
 }
 
 func (h *BucketHandler) UpdateBucket(ctx *fiber.Ctx) error {
-	var request models.BucketCreate
+	id := ctx.Params("id")
 
-	id, err := utils.GetParamId(ctx)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
-
-	err = utils.ParseRequestBody(ctx.Body(), &request)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
-
-	response, err := h.bucketService.UpdateBucket(ctx.Context(), id, request)
+	response, err := h.bucketService.UpdateBucket(ctx.Context(), id, ctx.Body())
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
@@ -78,10 +60,7 @@ func (h *BucketHandler) UpdateBucket(ctx *fiber.Ctx) error {
 }
 
 func (h *BucketHandler) DeleteBucket(ctx *fiber.Ctx) error {
-	id, err := utils.GetParamId(ctx)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
+	id := ctx.Params("id")
 
 	response, err := h.bucketService.DeleteBucket(ctx.Context(), id)
 	if err != nil {
@@ -91,8 +70,10 @@ func (h *BucketHandler) DeleteBucket(ctx *fiber.Ctx) error {
 	return ctx.Status(response.Code).JSON(response)
 }
 
-func (h *BucketHandler) GetBuckets(ctx *fiber.Ctx) error {
-	response, err := h.bucketService.GetBuckets(ctx.Context())
+func (h *BucketHandler) GetBucketById(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+
+	response, err := h.bucketService.GetBucketById(ctx.Context(), id)
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
@@ -100,13 +81,8 @@ func (h *BucketHandler) GetBuckets(ctx *fiber.Ctx) error {
 	return ctx.Status(response.Code).JSON(response)
 }
 
-func (h *BucketHandler) GetBucketById(ctx *fiber.Ctx) error {
-	id, err := utils.GetParamId(ctx)
-	if err != nil {
-		return ctx.Status(err.Code).JSON(err)
-	}
-
-	response, err := h.bucketService.GetBucketById(ctx.Context(), id)
+func (h *BucketHandler) ListBuckets(ctx *fiber.Ctx) error {
+	response, err := h.bucketService.ListBuckets(ctx.Context())
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
