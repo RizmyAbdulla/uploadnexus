@@ -68,6 +68,7 @@ func (c *DatabaseClient) DeleteObject(ctx context.Context, id string) error {
 
 func (c *DatabaseClient) CheckIfObjectExistsById(ctx context.Context, id string) (bool, error) {
 	const Op errors.Op = "postgresql.CheckIfObjectExistsById"
+
 	var exists bool
 
 	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE id = $1)`, entities.ObjectCollection)
@@ -91,6 +92,7 @@ func (c *DatabaseClient) CheckIfObjectExistsById(ctx context.Context, id string)
 
 func (c *DatabaseClient) GetObjectById(ctx context.Context, id string) (*entities.Object, error) {
 	const Op errors.Op = "postgresql.GetObjectById"
+
 	var object entities.Object
 	var metadataJson json.RawMessage
 
@@ -117,6 +119,7 @@ func (c *DatabaseClient) GetObjectById(ctx context.Context, id string) (*entitie
 
 func (c *DatabaseClient) CheckIfObjectExistsByBucketNameAndObjectName(ctx context.Context, bucketName string, objectName string) (bool, error) {
 	const Op errors.Op = "postgresql.CheckIfObjectExistsByBucketNameAndObjectName"
+
 	var exists bool
 
 	query := fmt.Sprintf(`SELECT EXISTS (SELECT 1 FROM %s WHERE bucket = $1 AND name = $2)`, entities.ObjectCollection)
@@ -140,6 +143,7 @@ func (c *DatabaseClient) CheckIfObjectExistsByBucketNameAndObjectName(ctx contex
 
 func (c *DatabaseClient) GetObjectByBucketNameAndObjectName(ctx context.Context, bucketName string, objectName string) (*entities.Object, error) {
 	const Op errors.Op = "postgresql.GetObjectByName"
+
 	var object entities.Object
 	var metadataJson json.RawMessage
 
@@ -164,8 +168,9 @@ func (c *DatabaseClient) GetObjectByBucketNameAndObjectName(ctx context.Context,
 	return &object, nil
 }
 
-func (c *DatabaseClient) GetObjectsByBucketId(ctx context.Context, bucketId string) (*[]entities.Object, error) {
-	const Op errors.Op = "postgresql.GetObjectsByBucketId"
+func (c *DatabaseClient) ListObjectsByBucketId(ctx context.Context, bucketId string) (*[]entities.Object, error) {
+	const Op errors.Op = "postgresql.ListObjectsByBucketId"
+
 	var objects []entities.Object
 
 	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = $1`, entities.ObjectCollection)
@@ -197,8 +202,9 @@ func (c *DatabaseClient) GetObjectsByBucketId(ctx context.Context, bucketId stri
 	return &objects, nil
 }
 
-func (c *DatabaseClient) GetObjectsByBucketName(ctx context.Context, bucketName string) (*[]entities.Object, error) {
-	const Op errors.Op = "postgresql.GetObjectsByBucketName"
+func (c *DatabaseClient) ListObjectsByBucketName(ctx context.Context, bucketName string) (*[]entities.Object, error) {
+	const Op errors.Op = "postgresql.ListObjectsByBucketName"
+
 	var objects []entities.Object
 
 	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = (SELECT id FROM %s WHERE name = $1)`, entities.ObjectCollection, entities.BucketCollection)
@@ -230,8 +236,9 @@ func (c *DatabaseClient) GetObjectsByBucketName(ctx context.Context, bucketName 
 	return &objects, nil
 }
 
-func (c *DatabaseClient) GetObjects(ctx context.Context) (*[]entities.Object, error) {
-	const Op errors.Op = "postgresql.GetObjects"
+func (c *DatabaseClient) ListObjects(ctx context.Context) (*[]entities.Object, error) {
+	const Op errors.Op = "postgresql.ListObjects"
+
 	var objects []entities.Object
 
 	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s`, entities.ObjectCollection)
