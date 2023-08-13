@@ -19,5 +19,5 @@ func NewHealthService() *HealthService {
 }
 
 func (s HealthService) GetHealth() *models.GeneralResponse {
-	return models.NewGeneralResponse(constants.StatusOK, "Upload Nexus is up ⬆️ and running 🏃", nil)
+	return models.NewGeneralResponse(constants.StatusOK, "upload nexus is up ⬆️ and running 🏃", nil)
 }
