@@ -11,9 +11,12 @@ import (
 )
 
 type StoreClient interface {
+	// CreatePresignedPutObject to create presigned put url
 	CreatePresignedPutObject(ctx context.Context, bucketName string, objectName string, expiry int64) (string, error)
+	// CreatePresignedGetObject to create presigned get url
 	CreatePresignedGetObject(ctx context.Context, bucketName string, objectName string, expiry int64) (string, error)
 
+	// DeleteObject to delete object
 	DeleteObject(ctx context.Context, bucketName string, objectName string) error
 }
 
