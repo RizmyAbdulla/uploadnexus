@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/ArkamFahry/uploadnexus/server/api/services"
 	"github.com/ArkamFahry/uploadnexus/server/models"
+	"github.com/ArkamFahry/uploadnexus/server/storage/database"
 	"github.com/ArkamFahry/uploadnexus/server/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -23,6 +24,20 @@ func NewBucketHandler(bucketService services.IBucketService) *BucketHandler {
 	return &BucketHandler{
 		bucketService: bucketService,
 	}
+}
+
+func RegisterBucketRoutes(api fiber.Router) {
+	databaseClient := database.GetDatabaseClient()
+	modelValidator := utils.NewModelValidator()
+	bucketService := services.NewBucketService(databaseClient, modelValidator)
+	bucketHandler := NewBucketHandler(bucketService)
+
+	bucketRouter := api.Group("/bucket")
+	bucketRouter.Post("/", bucketHandler.CreateBucket)
+	bucketRouter.Patch("/:id", bucketHandler.UpdateBucket)
+	bucketRouter.Delete("/:id", bucketHandler.DeleteBucket)
+	bucketRouter.Get("/", bucketHandler.GetBuckets)
+	bucketRouter.Get("/:id", bucketHandler.GetBucketById)
 }
 
 func (h *BucketHandler) CreateBucket(ctx *fiber.Ctx) error {

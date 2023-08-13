@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/ArkamFahry/uploadnexus/server/api/services"
+	"github.com/ArkamFahry/uploadnexus/server/storage/database"
+	"github.com/ArkamFahry/uploadnexus/server/storage/objectstore"
 	"github.com/ArkamFahry/uploadnexus/server/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,6 +24,18 @@ func NewObjectHandler(objectService services.IObjectService) *ObjectHandler {
 	return &ObjectHandler{
 		objectService: objectService,
 	}
+}
+
+func RegisterObjectRoutes(api fiber.Router) {
+	databaseClient := database.GetDatabaseClient()
+	objectStoreClient := objectstore.GetObjectStoreClient()
+	objectStoreService := services.NewObjectService(databaseClient, objectStoreClient)
+	objectHandler := NewObjectHandler(objectStoreService)
+
+	objectRoute := api.Group("/object")
+	objectRoute.Post("/sign/:bucket_name/*", objectHandler.CreatePresignedPutObject)
+	objectRoute.Get("/sign/:bucket_name/*", objectHandler.CreatePresignedGetObject)
+	objectRoute.Delete("/:bucket_name/*", objectHandler.DeleteObject)
 }
 
 func (h *ObjectHandler) CreatePresignedPutObject(ctx *fiber.Ctx) error {

@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"github.com/ArkamFahry/uploadnexus/server/api/routes"
+	"github.com/ArkamFahry/uploadnexus/server/api/handlers"
 	"github.com/ArkamFahry/uploadnexus/server/envs"
 	"github.com/ArkamFahry/uploadnexus/server/errors"
 	"github.com/gofiber/fiber/v2"
@@ -19,10 +19,9 @@ func Serve() {
 	app.Use(recoverMiddleware)
 
 	api := app.Group("/api")
-	routes.RegisterHealthRoutes(api)
-	routes.RegisterBucketRoutes(api)
-	routes.RegisterObjectRoutes(api)
-	routes.RegisterUploadRoutes(api)
+	handlers.RegisterHealthRoutes(api)
+	handlers.RegisterBucketRoutes(api)
+	handlers.RegisterObjectRoutes(api)
 
 	appPort := envs.EnvStoreInstance.GetEnv().AppPort
 
