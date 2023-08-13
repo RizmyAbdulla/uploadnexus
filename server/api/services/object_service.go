@@ -10,6 +10,7 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/storage/entities"
 	"github.com/ArkamFahry/uploadnexus/server/storage/objectstore"
 	"github.com/ArkamFahry/uploadnexus/server/utils"
+	"net/url"
 )
 
 type IObjectService interface {
@@ -33,6 +34,24 @@ func NewObjectService(databaseClient clients.DatabaseClient, objectStoreClient o
 }
 
 func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError) {
+	if bucketName == "" {
+		return nil, errors.NewBadRequestError("bucket name cannot be empty")
+	}
+
+	bucketName, err := url.QueryUnescape(bucketName)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid bucket name")
+	}
+
+	if objectName == "" {
+		return nil, errors.NewBadRequestError("object name cannot be empty")
+	}
+
+	objectName, err = url.QueryUnescape(objectName)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid object name")
+	}
+
 	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketName)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
@@ -51,7 +70,7 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 
 	expiry := envs.EnvStoreInstance.GetEnv().PresignedPutObjectExpiration
 
-	url, err := s.objectStoreClient.CreatePresignedPutObject(ctx, bucketName, objectName, expiry)
+	presignedUrl, err := s.objectStoreClient.CreatePresignedPutObject(ctx, bucketName, objectName, expiry)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to create presigned put object")
 	}
@@ -71,7 +90,7 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 	preSignedPutObject := models.PreSignedObject{
 		BucketName: bucketName,
 		ObjectName: objectName,
-		Url:        url,
+		Url:        presignedUrl,
 		HttpMethod: constants.PUT,
 		Expiry:     expiry,
 	}
@@ -80,6 +99,24 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 }
 
 func (s *ObjectService) CreatePreSignedGetObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError) {
+	if bucketName == "" {
+		return nil, errors.NewBadRequestError("bucket name cannot be empty")
+	}
+
+	bucketName, err := url.QueryUnescape(bucketName)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid bucket name")
+	}
+
+	if objectName == "" {
+		return nil, errors.NewBadRequestError("object name cannot be empty")
+	}
+
+	objectName, err = url.QueryUnescape(objectName)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid object name")
+	}
+
 	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketName)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
@@ -98,7 +135,7 @@ func (s *ObjectService) CreatePreSignedGetObject(ctx context.Context, bucketName
 
 	expiry := envs.EnvStoreInstance.GetEnv().PresignedPutObjectExpiration
 
-	url, err := s.objectStoreClient.CreatePresignedGetObject(ctx, bucketName, objectName, expiry)
+	presignedUrl, err := s.objectStoreClient.CreatePresignedGetObject(ctx, bucketName, objectName, expiry)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to create presigned get object")
 	}
@@ -106,7 +143,7 @@ func (s *ObjectService) CreatePreSignedGetObject(ctx context.Context, bucketName
 	preSignedPutObject := models.PreSignedObject{
 		BucketName: bucketName,
 		ObjectName: objectName,
-		Url:        url,
+		Url:        presignedUrl,
 		HttpMethod: constants.GET,
 		Expiry:     expiry,
 	}
@@ -115,6 +152,24 @@ func (s *ObjectService) CreatePreSignedGetObject(ctx context.Context, bucketName
 }
 
 func (s *ObjectService) DeleteObject(ctx context.Context, bucketName string, objectName string) (*models.GeneralResponse, *errors.HttpError) {
+	if bucketName == "" {
+		return nil, errors.NewBadRequestError("bucket name cannot be empty")
+	}
+
+	bucketName, err := url.QueryUnescape(bucketName)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid bucket name")
+	}
+
+	if objectName == "" {
+		return nil, errors.NewBadRequestError("object name cannot be empty")
+	}
+
+	objectName, err = url.QueryUnescape(objectName)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid object name")
+	}
+
 	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketName)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
