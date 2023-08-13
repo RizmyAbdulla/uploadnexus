@@ -6,7 +6,6 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/rs/zerolog/log"
 )
 
 func Serve() {
@@ -25,8 +24,11 @@ func Serve() {
 
 	appPort := envs.EnvStoreInstance.GetEnv().AppPort
 
-	err := app.Listen(":" + appPort)
+	err := app.Listen(":*" + appPort)
 	if err != nil {
-		log.Fatal().Msg(errors.NewError(Op, "error while starting server", err).Error())
+		err := errors.NewError(Op, "error while starting server", err)
+		if err != nil {
+			return
+		}
 	}
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/errors"
 	"github.com/ArkamFahry/uploadnexus/server/storage/database"
 	"github.com/ArkamFahry/uploadnexus/server/storage/objectstore"
-	"github.com/rs/zerolog/log"
 )
 
 func Init() {
@@ -16,16 +15,25 @@ func Init() {
 
 	err := envs.InitEnv()
 	if err != nil {
-		log.Fatal().Msg(errors.NewError(Op, "error initializing env", err).Error())
+		err := errors.NewError(Op, "error initializing env", err)
+		if err != nil {
+			return
+		}
 	}
 
 	err = database.InitDatabase()
 	if err != nil {
-		log.Fatal().Msg(errors.NewError(Op, "error initializing database", err).Error())
+		err := errors.NewError(Op, "error initializing database", err)
+		if err != nil {
+			return
+		}
 	}
 
 	err = objectstore.InitObjectStore()
 	if err != nil {
-		log.Fatal().Msg(errors.NewError(Op, "error initializing object store", err).Error())
+		err := errors.NewError(Op, "error initializing object store", err)
+		if err != nil {
+			return
+		}
 	}
 }
