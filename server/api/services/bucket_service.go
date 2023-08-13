@@ -8,14 +8,15 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/storage/database/clients"
 	"github.com/ArkamFahry/uploadnexus/server/storage/entities"
 	"github.com/ArkamFahry/uploadnexus/server/utils"
+	"net/url"
 )
 
 type IBucketService interface {
-	CreateBucket(ctx context.Context, bucketCreate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError)
-	UpdateBucket(ctx context.Context, id string, bucketUpdate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError)
+	CreateBucket(ctx context.Context, body []byte) (*models.GeneralResponse, *errors.HttpError)
+	UpdateBucket(ctx context.Context, id string, body []byte) (*models.GeneralResponse, *errors.HttpError)
 	DeleteBucket(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError)
 	GetBucketById(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError)
-	GetBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError)
+	ListBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError)
 }
 
 type BucketService struct {
@@ -32,7 +33,14 @@ func NewBucketService(databaseClient clients.DatabaseClient, modelValidator util
 	}
 }
 
-func (s *BucketService) CreateBucket(ctx context.Context, bucketCreate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError) {
+func (s *BucketService) CreateBucket(ctx context.Context, body []byte) (*models.GeneralResponse, *errors.HttpError) {
+	var bucketCreate models.BucketCreate
+
+	err := utils.ParseRequestBody(body, &bucketCreate)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid request body")
+	}
+
 	validate, err := s.modelValidator.ValidateModel(bucketCreate)
 	if err != nil {
 		return nil, errors.NewBadRequestError(validate)
@@ -47,9 +55,9 @@ func (s *BucketService) CreateBucket(ctx context.Context, bucketCreate models.Bu
 	}
 
 	if len(bucketCreate.AllowedMimeTypes) != 0 {
-		isValid, invalidMimeType := utils.ValidateMimeTypes(bucketCreate.AllowedMimeTypes)
+		isValid, err := utils.ValidateMimeTypes(bucketCreate.AllowedMimeTypes)
 		if !isValid {
-			return nil, errors.NewBadRequestError(invalidMimeType)
+			return nil, errors.NewInvalidMediaTypeError(err.Error())
 		}
 	}
 
@@ -62,7 +70,7 @@ func (s *BucketService) CreateBucket(ctx context.Context, bucketCreate models.Bu
 	}
 
 	bucket := entities.Bucket{
-		Id:                utils.GetUUID(),
+		Id:                bucketCreate.Name,
 		Name:              bucketCreate.Name,
 		Description:       bucketCreate.Description,
 		AllowedMimeTypes:  &bucketCreate.AllowedMimeTypes,
@@ -79,13 +87,29 @@ func (s *BucketService) CreateBucket(ctx context.Context, bucketCreate models.Bu
 	return models.NewGeneralResponse(constants.StatusCreated, "bucket created successfully", bucket), nil
 }
 
-func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdate models.BucketCreate) (*models.GeneralResponse, *errors.HttpError) {
+func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte) (*models.GeneralResponse, *errors.HttpError) {
+	var bucketUpdate models.BucketUpdate
+
+	if id == "" {
+		return nil, errors.NewBadRequestError("id cannot be empty")
+	}
+
+	id, err := url.QueryUnescape(id)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid id")
+	}
+
+	err = utils.ParseRequestBody(body, &bucketUpdate)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid request body")
+	}
+
 	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
 	}
 	if !exists {
-		return nil, errors.NewBadRequestError("bucket with the id '" + id + "' does not exist")
+		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
 	validate, err := s.modelValidator.ValidateModel(bucketUpdate)
@@ -95,10 +119,17 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdat
 
 	oldBucket, err := s.databaseClient.GetBucketById(ctx, id)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to get bucket by id")
+		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
 
 	if bucketUpdate.Name != "" {
+		exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketUpdate.Name)
+		if err != nil {
+			return nil, errors.NewInternalServerError("unable to check if bucket exists")
+		}
+		if exists {
+			return nil, errors.NewBadRequestError("bucket with the name '" + bucketUpdate.Name + "' already exists")
+		}
 		oldBucket.Name = bucketUpdate.Name
 	}
 
@@ -107,9 +138,9 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdat
 	}
 
 	if len(bucketUpdate.AllowedMimeTypes) != 0 {
-		isValid, invalidMimeType := utils.ValidateMimeTypes(bucketUpdate.AllowedMimeTypes)
+		isValid, err := utils.ValidateMimeTypes(bucketUpdate.AllowedMimeTypes)
 		if !isValid {
-			return nil, errors.NewBadRequestError(invalidMimeType)
+			return nil, errors.NewInvalidMediaTypeError(err.Error())
 		}
 		oldBucket.AllowedMimeTypes = &bucketUpdate.AllowedMimeTypes
 	}
@@ -144,12 +175,21 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, bucketUpdat
 }
 
 func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError) {
+	if id == "" {
+		return nil, errors.NewBadRequestError("id cannot be empty")
+	}
+
+	id, err := url.QueryUnescape(id)
+	if err != nil {
+		return nil, errors.NewBadRequestError("invalid id")
+	}
+
 	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
 	}
 	if !exists {
-		return nil, errors.NewBadRequestError("bucket with the id '" + id + "' does not exist")
+		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
 	err = s.databaseClient.DeleteBucket(ctx, id)
@@ -166,7 +206,7 @@ func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.G
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
 	}
 	if !exists {
-		return nil, errors.NewBadRequestError("bucket with the id '" + id + "' does not exist")
+		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
 	bucket, err := s.databaseClient.GetBucketById(ctx, id)
@@ -177,8 +217,8 @@ func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.G
 	return models.NewGeneralResponse(constants.StatusOK, "bucket retrieved successfully", bucket), nil
 }
 
-func (s *BucketService) GetBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError) {
-	buckets, err := s.databaseClient.GetBuckets(ctx)
+func (s *BucketService) ListBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError) {
+	buckets, err := s.databaseClient.ListBuckets(ctx)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to get buckets")
 	}
