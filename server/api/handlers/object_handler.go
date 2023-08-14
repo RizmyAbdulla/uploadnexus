@@ -4,6 +4,7 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/api/services"
 	"github.com/ArkamFahry/uploadnexus/server/storage/database"
 	"github.com/ArkamFahry/uploadnexus/server/storage/objectstore"
+	"github.com/ArkamFahry/uploadnexus/server/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -28,20 +29,20 @@ func NewObjectHandler(objectService services.IObjectService) *ObjectHandler {
 func RegisterObjectRoutes(api fiber.Router) {
 	databaseClient := database.GetDatabaseClient()
 	objectStoreClient := objectstore.GetObjectStoreClient()
-	objectStoreService := services.NewObjectService(databaseClient, objectStoreClient)
+	modelValidator := utils.NewModelValidator()
+	objectStoreService := services.NewObjectService(objectStoreClient, databaseClient, modelValidator)
 	objectHandler := NewObjectHandler(objectStoreService)
 
 	objectRoute := api.Group("/object")
-	objectRoute.Post("/sign/:bucket_name/*", objectHandler.CreatePresignedPutObject)
+	objectRoute.Post("/sign/:bucket_name", objectHandler.CreatePresignedPutObject)
 	objectRoute.Get("/sign/:bucket_name/*", objectHandler.CreatePresignedGetObject)
 	objectRoute.Delete("/:bucket_name/*", objectHandler.DeleteObject)
 }
 
 func (h *ObjectHandler) CreatePresignedPutObject(ctx *fiber.Ctx) error {
 	bucketName := ctx.Params("bucket_name")
-	objectName := ctx.Params("*")
 
-	response, err := h.objectService.CreatePreSignedPutObject(ctx.Context(), bucketName, objectName)
+	response, err := h.objectService.CreatePreSignedPutObject(ctx.Context(), bucketName, ctx.Body())
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
