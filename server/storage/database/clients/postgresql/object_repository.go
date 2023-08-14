@@ -48,8 +48,26 @@ func (c *DatabaseClient) UpdateObject(ctx context.Context, object entities.Objec
 	return nil
 }
 
-func (c *DatabaseClient) DeleteObject(ctx context.Context, id string) error {
-	const Op errors.Op = "postgresql.DeleteObject"
+func (c *DatabaseClient) UpdateObjectBucketName(ctx context.Context, oldBucketName string, newBucketName string) error {
+	const Op errors.Op = "postgresql.UpdateObjectBucketName"
+
+	query := fmt.Sprintf(`UPDATE %s SET bucket = $1 WHERE bucket = $2`, entities.ObjectCollection)
+
+	stmt, err := c.db.PrepareContext(ctx, query)
+	if err != nil {
+		return errors.NewError(Op, "failed to prepare statement", err)
+	}
+
+	_, err = stmt.ExecContext(ctx, newBucketName, oldBucketName)
+	if err != nil {
+		return errors.NewError(Op, "failed to update object bucket name", err)
+	}
+
+	return nil
+}
+
+func (c *DatabaseClient) DeleteObjectById(ctx context.Context, id string) error {
+	const Op errors.Op = "postgresql.DeleteObjectById"
 
 	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, entities.ObjectCollection)
 
@@ -60,7 +78,25 @@ func (c *DatabaseClient) DeleteObject(ctx context.Context, id string) error {
 
 	_, err = stmt.ExecContext(ctx, id)
 	if err != nil {
-		return errors.NewError(Op, "failed to delete object", err)
+		return errors.NewError(Op, "failed to delete object by id", err)
+	}
+
+	return nil
+}
+
+func (c *DatabaseClient) DeleteObjectsByBucketId(ctx context.Context, bucketId string) error {
+	const Op errors.Op = "postgresql.DeleteObjectsByBucketId"
+
+	query := fmt.Sprintf(`DELETE FROM %s WHERE bucket = $1`, entities.ObjectCollection)
+
+	stmt, err := c.db.PrepareContext(ctx, query)
+	if err != nil {
+		return errors.NewError(Op, "failed to prepare statement", err)
+	}
+
+	_, err = stmt.ExecContext(ctx, bucketId)
+	if err != nil {
+		return errors.NewError(Op, "failed to delete objects by bucket id", err)
 	}
 
 	return nil

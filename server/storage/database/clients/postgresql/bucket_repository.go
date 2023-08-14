@@ -44,8 +44,8 @@ func (c *DatabaseClient) UpdateBucket(ctx context.Context, bucket entities.Bucke
 	return nil
 }
 
-func (c *DatabaseClient) DeleteBucket(ctx context.Context, id string) error {
-	const Op errors.Op = "postgresql.DeleteBucket"
+func (c *DatabaseClient) DeleteBucketById(ctx context.Context, id string) error {
+	const Op errors.Op = "postgresql.DeleteBucketById"
 
 	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, entities.BucketCollection)
 
