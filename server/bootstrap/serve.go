@@ -24,7 +24,7 @@ func Serve() {
 
 	appPort := envs.EnvStoreInstance.GetEnv().AppPort
 
-	err := app.Listen(":*" + appPort)
+	err := app.Listen(":" + appPort)
 	if err != nil {
 		err := errors.NewError(Op, "error while starting server", err)
 		if err != nil {
