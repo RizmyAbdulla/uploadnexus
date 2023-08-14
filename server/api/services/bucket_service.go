@@ -125,7 +125,7 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte
 		return nil, errors.NewBadRequestError(validate)
 	}
 
-	oldBucket, err := s.databaseClient.GetBucketById(ctx, id)
+	oldBucket, err := s.databaseClient.GetBucketByID(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
@@ -153,8 +153,7 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte
 	}
 
 	if len(bucketUpdate.AllowedMimeTypes) != 0 {
-		isValid, err := utils.ValidateMimeTypes(bucketUpdate.AllowedMimeTypes)
-		if !isValid {
+		if isValid, err := utils.ValidateMimeTypes(bucketUpdate.AllowedMimeTypes); !isValid {
 			return nil, errors.NewInvalidMediaTypeError(err.Error())
 		}
 		oldBucket.AllowedMimeTypes = &bucketUpdate.AllowedMimeTypes
@@ -218,7 +217,7 @@ func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.Bu
 		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
-	bucket, err := s.databaseClient.GetBucketById(ctx, id)
+	bucket, err := s.databaseClient.GetBucketByID(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
@@ -248,7 +247,7 @@ func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.B
 		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
-	bucket, err := s.databaseClient.GetBucketById(ctx, id)
+	bucket, err := s.databaseClient.GetBucketByID(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
@@ -306,7 +305,7 @@ func (s *BucketService) EmptyBucket(ctx context.Context, id string) (*models.Buc
 		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
-	bucket, err := s.databaseClient.GetBucketById(ctx, id)
+	bucket, err := s.databaseClient.GetBucketByID(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
