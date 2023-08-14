@@ -11,6 +11,22 @@ type Bucket struct {
 	UpdatedAt         *int64    `json:"updated_at"`
 }
 
+type BucketCreate struct {
+	Name              string   `json:"name" validate:"required,min=3,max=36"`
+	Description       *string  `json:"description,omitempty"`
+	AllowedMimeTypes  []string `json:"allowed_mime_types,omitempty"`
+	AllowedObjectSize int64    `json:"allowed_object_size,omitempty"`
+	IsPublic          bool     `json:"is_public,omitempty"`
+}
+
+type BucketUpdate struct {
+	Name              string   `json:"name,omitempty" validate:"min=3,max=36"`
+	Description       *string  `json:"description,omitempty"`
+	AllowedMimeTypes  []string `json:"allowed_mime_types,omitempty"`
+	AllowedObjectSize int64    `json:"allowed_object_size,omitempty"`
+	IsPublic          bool     `json:"is_public,omitempty"`
+}
+
 type BucketResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -26,20 +42,4 @@ type BucketListResponse struct {
 type BucketGeneralResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
-}
-
-type BucketCreate struct {
-	Name              string   `json:"name" validate:"required,min=3,max=36"`
-	Description       *string  `json:"description,omitempty"`
-	AllowedMimeTypes  []string `json:"allowed_mime_types,omitempty"`
-	AllowedObjectSize int64    `json:"allowed_object_size,omitempty"`
-	IsPublic          bool     `json:"is_public,omitempty"`
-}
-
-type BucketUpdate struct {
-	Name              string   `json:"name,omitempty" validate:"min=3,max=36"`
-	Description       *string  `json:"description,omitempty"`
-	AllowedMimeTypes  []string `json:"allowed_mime_types,omitempty"`
-	AllowedObjectSize int64    `json:"allowed_object_size,omitempty"`
-	IsPublic          bool     `json:"is_public,omitempty"`
 }
