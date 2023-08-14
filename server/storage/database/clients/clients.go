@@ -10,8 +10,8 @@ type DatabaseClient interface {
 	CreateBucket(ctx context.Context, bucket entities.Bucket) error
 	// UpdateBucket to update bucket information in database
 	UpdateBucket(ctx context.Context, bucket entities.Bucket) error
-	// DeleteBucket to delete bucket from database
-	DeleteBucket(ctx context.Context, id string) error
+	// DeleteBucketById to delete bucket from database
+	DeleteBucketById(ctx context.Context, id string) error
 	// CheckIfBucketExistsById to check if bucket exists in database using the bucket id
 	CheckIfBucketExistsById(ctx context.Context, id string) (bool, error)
 	// GetBucketById to get bucket information from database using the bucket id
@@ -27,8 +27,12 @@ type DatabaseClient interface {
 	CreateObject(ctx context.Context, object entities.Object) error
 	// UpdateObject to update object information in database
 	UpdateObject(ctx context.Context, object entities.Object) error
-	// DeleteObject to delete object from database
-	DeleteObject(ctx context.Context, id string) error
+	// UpdateObjectBucketName to update object bucket information in database
+	UpdateObjectBucketName(ctx context.Context, oldBucketName string, newBucketName string) error
+	// DeleteObjectById to delete object from database
+	DeleteObjectById(ctx context.Context, id string) error
+	// DeleteObjectsByBucketId to delete object from database using the object id
+	DeleteObjectsByBucketId(ctx context.Context, bucketId string) error
 	// CheckIfObjectExistsById to check if object exists in database using the object id
 	CheckIfObjectExistsById(ctx context.Context, id string) (bool, error)
 	// GetObjectById to get object information from database using the object id
