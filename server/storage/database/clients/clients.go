@@ -10,7 +10,7 @@ type DatabaseClient interface {
 	UpdateBucket(ctx context.Context, bucket entities.Bucket) error
 	DeleteBucketByID(ctx context.Context, id string) error
 	BucketExistsByID(ctx context.Context, id string) (bool, error)
-	GetBucketById(ctx context.Context, id string) (*entities.Bucket, error)
+	GetBucketByID(ctx context.Context, id string) (*entities.Bucket, error)
 	BucketExistsByName(ctx context.Context, name string) (bool, error)
 	GetBucketByName(ctx context.Context, name string) (*entities.Bucket, error)
 	ListBuckets(ctx context.Context) (*[]entities.Bucket, error)
