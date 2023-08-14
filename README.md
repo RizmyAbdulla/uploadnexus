@@ -18,3 +18,8 @@
 - [ ] Multiple Database support
 - [ ] Advance Pluggable Auth Layer
 - [ ] UI Dashboard
+
+## Limitations
+- The server is limited to handle objects of 5GB in size
+  - Primary reason is the logical file rename or logical bucket rename happens by copying the folder or file from on source to destination and removing the old destination and multipart operations are not implemented to handle files larger than 5GB
+- The server is underpinned by eventual consistency because all S3 compatible providers don't have file upload events so workers are used to check upload status. So there can be stale data window
