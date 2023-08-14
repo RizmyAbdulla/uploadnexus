@@ -71,3 +71,37 @@ func (c *S3Client) MoveObject(ctx context.Context, sourceBucketName string, sour
 
 	return nil
 }
+
+func (c *S3Client) GetObjectKey(ctx context.Context, bucketName string, objectName string) (string, error) {
+	const Op errors.Op = "objectstore.GetObjectKey"
+
+	bucket := envs.EnvStoreInstance.GetEnv().BucketName
+	object := fmt.Sprintf("%s/%s", bucketName, objectName)
+
+	objectInfo, err := c.s3Client.HeadObject(ctx, &s3.HeadObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(object),
+	})
+	if err != nil {
+		return "", errors.NewError(Op, "failed to get object info", err)
+	}
+
+	return objectInfo.Metadata["Key"], err
+}
+
+func (c *S3Client) GetObjectInfo(ctx context.Context, bucketName string, objectName string) (map[string]string, error) {
+	const Op errors.Op = "objectstore.GetObjectInfo"
+
+	bucket := envs.EnvStoreInstance.GetEnv().BucketName
+	object := fmt.Sprintf("%s/%s", bucketName, objectName)
+
+	objectInfo, err := c.s3Client.HeadObject(ctx, &s3.HeadObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(object),
+	})
+	if err != nil {
+		return nil, errors.NewError(Op, "failed to get object info", err)
+	}
+
+	return objectInfo.Metadata, nil
+}
