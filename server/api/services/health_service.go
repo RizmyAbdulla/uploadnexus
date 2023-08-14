@@ -6,7 +6,7 @@ import (
 )
 
 type IHealthService interface {
-	GetHealth() *models.GeneralResponse
+	GetHealth() *models.HealthResponse
 }
 
 type HealthService struct {
@@ -18,6 +18,9 @@ func NewHealthService() *HealthService {
 	return &HealthService{}
 }
 
-func (s HealthService) GetHealth() *models.GeneralResponse {
-	return models.NewGeneralResponse(constants.StatusOK, "upload nexus is up ⬆️ and running 🏃", nil)
+func (s HealthService) GetHealth() *models.HealthResponse {
+	return &models.HealthResponse{
+		Code:    constants.StatusOK,
+		Message: "upload nexus is up ⬆️ and running 🏃",
+	}
 }
