@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/ArkamFahry/uploadnexus/server/api/services"
 	"github.com/ArkamFahry/uploadnexus/server/storage/database"
+	"github.com/ArkamFahry/uploadnexus/server/storage/objectstore"
 	"github.com/ArkamFahry/uploadnexus/server/utils"
 	"github.com/gofiber/fiber/v2"
 )
@@ -26,9 +27,10 @@ func NewBucketHandler(bucketService services.IBucketService) *BucketHandler {
 }
 
 func RegisterBucketRoutes(api fiber.Router) {
+	objectStoreClient := objectstore.GetObjectStoreClient()
 	databaseClient := database.GetDatabaseClient()
 	modelValidator := utils.NewModelValidator()
-	bucketService := services.NewBucketService(databaseClient, modelValidator)
+	bucketService := services.NewBucketService(objectStoreClient, databaseClient, modelValidator)
 	bucketHandler := NewBucketHandler(bucketService)
 
 	bucketRouter := api.Group("/bucket")
@@ -37,6 +39,7 @@ func RegisterBucketRoutes(api fiber.Router) {
 	bucketRouter.Delete("/:id", bucketHandler.DeleteBucket)
 	bucketRouter.Get("/:id", bucketHandler.GetBucketById)
 	bucketRouter.Get("/", bucketHandler.ListBuckets)
+	bucketRouter.Post("/:id/empty", bucketHandler.EmptyBucket)
 }
 
 func (h *BucketHandler) CreateBucket(ctx *fiber.Ctx) error {
@@ -83,6 +86,16 @@ func (h *BucketHandler) GetBucketById(ctx *fiber.Ctx) error {
 
 func (h *BucketHandler) ListBuckets(ctx *fiber.Ctx) error {
 	response, err := h.bucketService.ListBuckets(ctx.Context())
+	if err != nil {
+		return ctx.Status(err.Code).JSON(err)
+	}
+
+	return ctx.Status(response.Code).JSON(response)
+}
+
+func (h *BucketHandler) EmptyBucket(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
+	response, err := h.bucketService.EmptyBucket(ctx.Context(), id)
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}
