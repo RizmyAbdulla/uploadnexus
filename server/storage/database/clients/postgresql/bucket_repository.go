@@ -44,8 +44,8 @@ func (c *DatabaseClient) UpdateBucket(ctx context.Context, bucket entities.Bucke
 	return nil
 }
 
-func (c *DatabaseClient) DeleteBucketById(ctx context.Context, id string) error {
-	const Op errors.Op = "postgresql.DeleteBucketById"
+func (c *DatabaseClient) DeleteBucketByID(ctx context.Context, id string) error {
+	const Op errors.Op = "postgresql.DeleteBucketByID"
 
 	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, entities.BucketCollection)
 
@@ -62,8 +62,8 @@ func (c *DatabaseClient) DeleteBucketById(ctx context.Context, id string) error 
 	return nil
 }
 
-func (c *DatabaseClient) CheckIfBucketExistsById(ctx context.Context, id string) (bool, error) {
-	const Op errors.Op = "postgresql.CheckIfBucketExistsById"
+func (c *DatabaseClient) BucketExistsByID(ctx context.Context, id string) (bool, error) {
+	const Op errors.Op = "postgresql.BucketExistsByID"
 
 	var exists bool
 
@@ -111,8 +111,8 @@ func (c *DatabaseClient) GetBucketById(ctx context.Context, id string) (*entitie
 	return &bucket, nil
 }
 
-func (c *DatabaseClient) CheckIfBucketExistsByName(ctx context.Context, name string) (bool, error) {
-	const Op errors.Op = "postgresql.CheckIfBucketExistsByName"
+func (c *DatabaseClient) BucketExistsByName(ctx context.Context, name string) (bool, error) {
+	const Op errors.Op = "postgresql.BucketExistsByName"
 
 	var exists bool
 

@@ -8,8 +8,7 @@ import (
 func ParseRequestBody(body []byte, data interface{}) error {
 	const Op errors.Op = "utils.ParseRequestBody"
 
-	err := json.Unmarshal(body, data)
-	if err != nil {
+	if err := json.Unmarshal(body, data); err != nil {
 		return errors.NewError(Op, "invalid request body", err)
 	}
 

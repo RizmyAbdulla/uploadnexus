@@ -14,15 +14,13 @@ func InitEnv() error {
 	viper.SetConfigName("dev")
 	viper.SetConfigType("env")
 	viper.AddConfigPath(".")
-	err = viper.ReadInConfig()
-	if err != nil {
+	if err := viper.ReadInConfig(); err != nil {
 		return errors.NewError(Op, "error reading config file", err)
 	}
 
 	viper.AutomaticEnv()
 
-	err = viper.Unmarshal(&env)
-	if err != nil {
+	if err := viper.Unmarshal(&env); err != nil {
 		return errors.NewError(Op, "error parsing config file", err)
 	}
 

@@ -47,7 +47,7 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 		return nil, errors.NewBadRequestError("invalid bucket name")
 	}
 
-	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketName)
+	exists, err := s.databaseClient.BucketExistsByName(ctx, bucketName)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
 	}
@@ -65,7 +65,7 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 		return nil, errors.NewBadRequestError(validate)
 	}
 
-	exists, err = s.databaseClient.CheckIfObjectExistsByBucketNameAndObjectName(ctx, bucketName, preSignedObjectCreate.ObjectName)
+	exists, err = s.databaseClient.ObjectExistsByBucketNameAndObjectName(ctx, bucketName, preSignedObjectCreate.ObjectName)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if object exists")
 	}
@@ -133,19 +133,15 @@ func (s *ObjectService) CreatePreSignedGetObject(ctx context.Context, bucketName
 		return nil, errors.NewBadRequestError("invalid object name")
 	}
 
-	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketName)
-	if err != nil {
+	if exists, err := s.databaseClient.BucketExistsByName(ctx, bucketName); err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
-	}
-	if !exists {
+	} else if !exists {
 		return nil, errors.NewNotFoundError("bucket with name '" + bucketName + "' does not exist")
 	}
 
-	exists, err = s.databaseClient.CheckIfObjectExistsByBucketNameAndObjectName(ctx, bucketName, objectName)
-	if err != nil {
+	if exists, err := s.databaseClient.ObjectExistsByBucketNameAndObjectName(ctx, bucketName, objectName); err != nil {
 		return nil, errors.NewInternalServerError("unable to check if object exists")
-	}
-	if !exists {
+	} else if !exists {
 		return nil, errors.NewNotFoundError("object with name '" + objectName + "' does not exist in bucket '" + bucketName + "'")
 	}
 
@@ -190,19 +186,15 @@ func (s *ObjectService) DeleteObject(ctx context.Context, bucketName string, obj
 		return nil, errors.NewBadRequestError("invalid object name")
 	}
 
-	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketName)
-	if err != nil {
+	if exists, err := s.databaseClient.BucketExistsByName(ctx, bucketName); err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
-	}
-	if !exists {
+	} else if !exists {
 		return nil, errors.NewNotFoundError("bucket with name '" + bucketName + "' does not exist")
 	}
 
-	exists, err = s.databaseClient.CheckIfObjectExistsByBucketNameAndObjectName(ctx, bucketName, objectName)
-	if err != nil {
+	if exists, err := s.databaseClient.ObjectExistsByBucketNameAndObjectName(ctx, bucketName, objectName); err != nil {
 		return nil, errors.NewInternalServerError("unable to check if object exists")
-	}
-	if !exists {
+	} else if !exists {
 		return nil, errors.NewNotFoundError("object with name '" + objectName + "' does not exist in bucket '" + bucketName + "'")
 	}
 
@@ -211,13 +203,11 @@ func (s *ObjectService) DeleteObject(ctx context.Context, bucketName string, obj
 		return nil, errors.NewInternalServerError("unable to get object")
 	}
 
-	err = s.databaseClient.DeleteObjectById(ctx, object.Id)
-	if err != nil {
+	if err := s.databaseClient.DeleteObjectByID(ctx, object.Id); err != nil {
 		return nil, errors.NewInternalServerError("unable to delete object")
 	}
 
-	err = s.objectStoreClient.DeleteObject(ctx, bucketName, objectName)
-	if err != nil {
+	if err = s.objectStoreClient.DeleteObject(ctx, bucketName, objectName); err != nil {
 		return nil, errors.NewInternalServerError("unable to delete object")
 	}
 

@@ -66,8 +66,8 @@ func (c *DatabaseClient) UpdateObjectBucketName(ctx context.Context, oldBucketNa
 	return nil
 }
 
-func (c *DatabaseClient) DeleteObjectById(ctx context.Context, id string) error {
-	const Op errors.Op = "postgresql.DeleteObjectById"
+func (c *DatabaseClient) DeleteObjectByID(ctx context.Context, id string) error {
+	const Op errors.Op = "postgresql.DeleteObjectByID"
 
 	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, entities.ObjectCollection)
 
@@ -84,8 +84,8 @@ func (c *DatabaseClient) DeleteObjectById(ctx context.Context, id string) error 
 	return nil
 }
 
-func (c *DatabaseClient) DeleteObjectsByBucketId(ctx context.Context, bucketId string) error {
-	const Op errors.Op = "postgresql.DeleteObjectsByBucketId"
+func (c *DatabaseClient) DeleteObjectsByBucketID(ctx context.Context, bucketId string) error {
+	const Op errors.Op = "postgresql.DeleteObjectsByBucketID"
 
 	query := fmt.Sprintf(`DELETE FROM %s WHERE bucket = $1`, entities.ObjectCollection)
 
@@ -102,8 +102,8 @@ func (c *DatabaseClient) DeleteObjectsByBucketId(ctx context.Context, bucketId s
 	return nil
 }
 
-func (c *DatabaseClient) CheckIfObjectExistsById(ctx context.Context, id string) (bool, error) {
-	const Op errors.Op = "postgresql.CheckIfObjectExistsById"
+func (c *DatabaseClient) CheckIfObjectExistsByID(ctx context.Context, id string) (bool, error) {
+	const Op errors.Op = "postgresql.CheckIfObjectExistsByID"
 
 	var exists bool
 
@@ -126,8 +126,8 @@ func (c *DatabaseClient) CheckIfObjectExistsById(ctx context.Context, id string)
 	return false, nil
 }
 
-func (c *DatabaseClient) GetObjectById(ctx context.Context, id string) (*entities.Object, error) {
-	const Op errors.Op = "postgresql.GetObjectById"
+func (c *DatabaseClient) GetObjectByID(ctx context.Context, id string) (*entities.Object, error) {
+	const Op errors.Op = "postgresql.GetObjectByID"
 
 	var object entities.Object
 	var metadataJson json.RawMessage
@@ -153,8 +153,8 @@ func (c *DatabaseClient) GetObjectById(ctx context.Context, id string) (*entitie
 	return &object, nil
 }
 
-func (c *DatabaseClient) CheckIfObjectExistsByBucketNameAndObjectName(ctx context.Context, bucketName string, objectName string) (bool, error) {
-	const Op errors.Op = "postgresql.CheckIfObjectExistsByBucketNameAndObjectName"
+func (c *DatabaseClient) ObjectExistsByBucketNameAndObjectName(ctx context.Context, bucketName string, objectName string) (bool, error) {
+	const Op errors.Op = "postgresql.ObjectExistsByBucketNameAndObjectName"
 
 	var exists bool
 
@@ -204,8 +204,8 @@ func (c *DatabaseClient) GetObjectByBucketNameAndObjectName(ctx context.Context,
 	return &object, nil
 }
 
-func (c *DatabaseClient) ListObjectsByBucketId(ctx context.Context, bucketId string) (*[]entities.Object, error) {
-	const Op errors.Op = "postgresql.ListObjectsByBucketId"
+func (c *DatabaseClient) ListObjectsByBucketID(ctx context.Context, bucketId string) (*[]entities.Object, error) {
+	const Op errors.Op = "postgresql.ListObjectsByBucketID"
 
 	var objects []entities.Object
 

@@ -13,26 +13,20 @@ func Init() {
 
 	config.InitZeroLogger()
 
-	err := envs.InitEnv()
-	if err != nil {
-		err := errors.NewError(Op, "error initializing env", err)
-		if err != nil {
+	if err := envs.InitEnv(); err != nil {
+		if err := errors.NewError(Op, "error initializing env", err); err != nil {
 			return
 		}
 	}
 
-	err = database.InitDatabase()
-	if err != nil {
-		err := errors.NewError(Op, "error initializing database", err)
-		if err != nil {
+	if err := database.InitDatabase(); err != nil {
+		if err := errors.NewError(Op, "error initializing database", err); err != nil {
 			return
 		}
 	}
 
-	err = objectstore.InitObjectStore()
-	if err != nil {
-		err := errors.NewError(Op, "error initializing object store", err)
-		if err != nil {
+	if err := objectstore.InitObjectStore(); err != nil {
+		if err := errors.NewError(Op, "error initializing object store", err); err != nil {
 			return
 		}
 	}

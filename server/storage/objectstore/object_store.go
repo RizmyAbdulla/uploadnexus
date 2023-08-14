@@ -10,7 +10,7 @@ import (
 )
 
 func (c *S3Client) DeleteObject(ctx context.Context, bucketName string, objectName string) error {
-	const Op errors.Op = "objectstore.DeleteObjectById"
+	const Op errors.Op = "objectstore.DeleteObjectByID"
 
 	bucket := envs.EnvStoreInstance.GetEnv().BucketName
 	object := fmt.Sprintf("%s/%s", bucketName, objectName)

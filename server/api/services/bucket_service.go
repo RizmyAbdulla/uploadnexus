@@ -40,21 +40,17 @@ func NewBucketService(objectStoreClient objectstore.StoreClient, databaseClient 
 func (s *BucketService) CreateBucket(ctx context.Context, body []byte) (*models.BucketResponse, *errors.HttpError) {
 	var bucketCreate models.BucketCreate
 
-	err := utils.ParseRequestBody(body, &bucketCreate)
-	if err != nil {
+	if err := utils.ParseRequestBody(body, &bucketCreate); err != nil {
 		return nil, errors.NewBadRequestError("invalid request body")
 	}
 
-	validate, err := s.modelValidator.ValidateModel(bucketCreate)
-	if err != nil {
+	if validate, err := s.modelValidator.ValidateModel(bucketCreate); err != nil {
 		return nil, errors.NewBadRequestError(validate)
 	}
 
-	exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketCreate.Name)
-	if err != nil {
-		return nil, errors.NewInternalServerError("unable to check if bucket exists")
-	}
-	if exists {
+	if exists, err := s.databaseClient.BucketExistsByName(ctx, bucketCreate.Name); err != nil {
+		return nil, errors.NewInternalServerError("unable to check if bucket exists by name")
+	} else if exists {
 		return nil, errors.NewBadRequestError("bucket with the name '" + bucketCreate.Name + "' already exists")
 	}
 
@@ -83,8 +79,7 @@ func (s *BucketService) CreateBucket(ctx context.Context, body []byte) (*models.
 		CreatedAt:         utils.GetTimeUnix(),
 	}
 
-	err = s.databaseClient.CreateBucket(ctx, bucket)
-	if err != nil {
+	if err := s.databaseClient.CreateBucket(ctx, bucket); err != nil {
 		return nil, errors.NewInternalServerError("unable to create bucket")
 	}
 
@@ -116,21 +111,17 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte
 		return nil, errors.NewBadRequestError("invalid id")
 	}
 
-	err = utils.ParseRequestBody(body, &bucketUpdate)
-	if err != nil {
+	if err := utils.ParseRequestBody(body, &bucketUpdate); err != nil {
 		return nil, errors.NewBadRequestError("invalid request body")
 	}
 
-	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
-	if err != nil {
+	if exists, err := s.databaseClient.BucketExistsByID(ctx, id); err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
-	}
-	if !exists {
+	} else if !exists {
 		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
-	validate, err := s.modelValidator.ValidateModel(bucketUpdate)
-	if err != nil {
+	if validate, err := s.modelValidator.ValidateModel(bucketUpdate); err != nil {
 		return nil, errors.NewBadRequestError(validate)
 	}
 
@@ -140,21 +131,17 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte
 	}
 
 	if bucketUpdate.Name != "" {
-		exists, err := s.databaseClient.CheckIfBucketExistsByName(ctx, bucketUpdate.Name)
-		if err != nil {
+		if exists, err := s.databaseClient.BucketExistsByName(ctx, bucketUpdate.Name); err != nil {
 			return nil, errors.NewInternalServerError("unable to check if bucket exists")
-		}
-		if exists {
+		} else if exists {
 			return nil, errors.NewBadRequestError("bucket with the name '" + bucketUpdate.Name + "' already exists")
 		}
 
-		err = s.objectStoreClient.RenameBucket(ctx, oldBucket.Name, bucketUpdate.Name)
-		if err != nil {
+		if err := s.objectStoreClient.RenameBucket(ctx, oldBucket.Name, bucketUpdate.Name); err != nil {
 			return nil, errors.NewInternalServerError("unable to rename bucket in object store")
 		}
 
-		err = s.databaseClient.UpdateObjectBucketName(ctx, oldBucket.Name, bucketUpdate.Name)
-		if err != nil {
+		if err := s.databaseClient.UpdateObjectBucketName(ctx, oldBucket.Name, bucketUpdate.Name); err != nil {
 			return nil, errors.NewInternalServerError("unable to update bucket name in database")
 		}
 
@@ -195,8 +182,7 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte
 		UpdatedAt:         oldBucket.UpdatedAt,
 	}
 
-	err = s.databaseClient.UpdateBucket(ctx, newBucket)
-	if err != nil {
+	if err := s.databaseClient.UpdateBucket(ctx, newBucket); err != nil {
 		return nil, errors.NewInternalServerError("unable to update bucket")
 	}
 
@@ -226,11 +212,9 @@ func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.Bu
 		return nil, errors.NewBadRequestError("invalid id")
 	}
 
-	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
-	if err != nil {
+	if exists, err := s.databaseClient.BucketExistsByID(ctx, id); err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
-	}
-	if !exists {
+	} else if !exists {
 		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
@@ -239,18 +223,15 @@ func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.Bu
 		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
 
-	err = s.objectStoreClient.DeleteBucket(ctx, bucket.Name)
-	if err != nil {
+	if err := s.objectStoreClient.DeleteBucket(ctx, bucket.Name); err != nil {
 		return nil, errors.NewInternalServerError("unable to delete bucket from object store")
 	}
 
-	err = s.databaseClient.DeleteObjectsByBucketId(ctx, bucket.Name)
-	if err != nil {
+	if err := s.databaseClient.DeleteObjectsByBucketID(ctx, bucket.Name); err != nil {
 		return nil, errors.NewInternalServerError("unable to delete objects from database")
 	}
 
-	err = s.databaseClient.DeleteBucketById(ctx, bucket.Id)
-	if err != nil {
+	if err := s.databaseClient.DeleteBucketByID(ctx, bucket.Id); err != nil {
 		return nil, errors.NewInternalServerError("unable to delete bucket from database")
 	}
 
@@ -261,11 +242,9 @@ func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.Bu
 }
 
 func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.BucketResponse, *errors.HttpError) {
-	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
-	if err != nil {
+	if exists, err := s.databaseClient.BucketExistsByID(ctx, id); err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
-	}
-	if !exists {
+	} else if !exists {
 		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
@@ -291,12 +270,12 @@ func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.B
 }
 
 func (s *BucketService) ListBuckets(ctx context.Context) (*models.BucketListResponse, *errors.HttpError) {
+	var bucketList models.BucketListResponse
+
 	buckets, err := s.databaseClient.ListBuckets(ctx)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to get buckets")
 	}
-
-	var bucketList models.BucketListResponse
 
 	if buckets != nil {
 		for _, bucket := range *buckets {
@@ -313,17 +292,17 @@ func (s *BucketService) ListBuckets(ctx context.Context) (*models.BucketListResp
 		}
 		bucketList.Code = constants.StatusOK
 		bucketList.Message = "buckets retrieved successfully"
+	} else {
+		return nil, errors.NewNotFoundError("no buckets found")
 	}
 
 	return &bucketList, nil
 }
 
 func (s *BucketService) EmptyBucket(ctx context.Context, id string) (*models.BucketGeneralResponse, *errors.HttpError) {
-	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
-	if err != nil {
+	if exists, err := s.databaseClient.BucketExistsByID(ctx, id); err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
-	}
-	if !exists {
+	} else if !exists {
 		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
@@ -332,13 +311,11 @@ func (s *BucketService) EmptyBucket(ctx context.Context, id string) (*models.Buc
 		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
 
-	err = s.objectStoreClient.EmptyBucket(ctx, bucket.Name)
-	if err != nil {
+	if err := s.objectStoreClient.EmptyBucket(ctx, bucket.Name); err != nil {
 		return nil, errors.NewInternalServerError("unable to empty bucket from object store")
 	}
 
-	err = s.databaseClient.DeleteObjectsByBucketId(ctx, bucket.Id)
-	if err != nil {
+	if err := s.databaseClient.DeleteObjectsByBucketID(ctx, bucket.Id); err != nil {
 		return nil, errors.NewInternalServerError("unable to delete objects from database")
 	}
 
