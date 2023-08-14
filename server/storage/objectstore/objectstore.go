@@ -18,6 +18,17 @@ type StoreClient interface {
 
 	// DeleteObject to delete object
 	DeleteObject(ctx context.Context, bucketName string, objectName string) error
+	// CopyObject to copy object from one location to another
+	CopyObject(ctx context.Context, sourceBucketName string, sourceObjectName string, destinationBucketName string, destinationObjectName string) error
+	// MoveObject to move object from one location to another
+	MoveObject(ctx context.Context, sourceBucketName string, sourceObjectName string, destinationBucketName string, destinationObjectName string) error
+
+	// RenameBucket to rename bucket
+	RenameBucket(ctx context.Context, oldBucketName string, newBucketName string) error
+	// EmptyBucket to empty bucket
+	EmptyBucket(ctx context.Context, bucketName string) error
+	// DeleteBucket to delete bucket
+	DeleteBucket(ctx context.Context, bucketName string) error
 }
 
 type S3Client struct {
