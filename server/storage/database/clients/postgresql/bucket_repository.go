@@ -86,8 +86,8 @@ func (c *DatabaseClient) BucketExistsByID(ctx context.Context, id string) (bool,
 	return false, nil
 }
 
-func (c *DatabaseClient) GetBucketById(ctx context.Context, id string) (*entities.Bucket, error) {
-	const Op errors.Op = "postgresql.GetBucketById"
+func (c *DatabaseClient) GetBucketByID(ctx context.Context, id string) (*entities.Bucket, error) {
+	const Op errors.Op = "postgresql.GetBucketByID"
 
 	var bucket entities.Bucket
 	var allowedMimeTypes pq.StringArray
