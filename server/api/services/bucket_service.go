@@ -7,33 +7,37 @@ import (
 	"github.com/ArkamFahry/uploadnexus/server/models"
 	"github.com/ArkamFahry/uploadnexus/server/storage/database/clients"
 	"github.com/ArkamFahry/uploadnexus/server/storage/entities"
+	"github.com/ArkamFahry/uploadnexus/server/storage/objectstore"
 	"github.com/ArkamFahry/uploadnexus/server/utils"
 	"net/url"
 )
 
 type IBucketService interface {
-	CreateBucket(ctx context.Context, body []byte) (*models.GeneralResponse, *errors.HttpError)
-	UpdateBucket(ctx context.Context, id string, body []byte) (*models.GeneralResponse, *errors.HttpError)
-	DeleteBucket(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError)
-	GetBucketById(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError)
-	ListBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError)
+	CreateBucket(ctx context.Context, body []byte) (*models.BucketResponse, *errors.HttpError)
+	UpdateBucket(ctx context.Context, id string, body []byte) (*models.BucketResponse, *errors.HttpError)
+	DeleteBucket(ctx context.Context, id string) (*models.BucketGeneralResponse, *errors.HttpError)
+	GetBucketById(ctx context.Context, id string) (*models.BucketResponse, *errors.HttpError)
+	ListBuckets(ctx context.Context) (*models.BucketListResponse, *errors.HttpError)
+	EmptyBucket(ctx context.Context, id string) (*models.BucketGeneralResponse, *errors.HttpError)
 }
 
 type BucketService struct {
-	databaseClient clients.DatabaseClient
-	modelValidator utils.IModelValidator
+	objectStoreClient objectstore.StoreClient
+	databaseClient    clients.DatabaseClient
+	modelValidator    utils.IModelValidator
 }
 
 var _ IBucketService = (*BucketService)(nil)
 
-func NewBucketService(databaseClient clients.DatabaseClient, modelValidator utils.IModelValidator) *BucketService {
+func NewBucketService(objectStoreClient objectstore.StoreClient, databaseClient clients.DatabaseClient, modelValidator utils.IModelValidator) *BucketService {
 	return &BucketService{
-		databaseClient: databaseClient,
-		modelValidator: modelValidator,
+		objectStoreClient: objectStoreClient,
+		databaseClient:    databaseClient,
+		modelValidator:    modelValidator,
 	}
 }
 
-func (s *BucketService) CreateBucket(ctx context.Context, body []byte) (*models.GeneralResponse, *errors.HttpError) {
+func (s *BucketService) CreateBucket(ctx context.Context, body []byte) (*models.BucketResponse, *errors.HttpError) {
 	var bucketCreate models.BucketCreate
 
 	err := utils.ParseRequestBody(body, &bucketCreate)
@@ -70,7 +74,7 @@ func (s *BucketService) CreateBucket(ctx context.Context, body []byte) (*models.
 	}
 
 	bucket := entities.Bucket{
-		Id:                bucketCreate.Name,
+		Id:                utils.GetUUID(),
 		Name:              bucketCreate.Name,
 		Description:       bucketCreate.Description,
 		AllowedMimeTypes:  &bucketCreate.AllowedMimeTypes,
@@ -84,10 +88,23 @@ func (s *BucketService) CreateBucket(ctx context.Context, body []byte) (*models.
 		return nil, errors.NewInternalServerError("unable to create bucket")
 	}
 
-	return models.NewGeneralResponse(constants.StatusCreated, "bucket created successfully", bucket), nil
+	return &models.BucketResponse{
+		Code:    constants.StatusOK,
+		Message: "bucket created",
+		Bucket: models.Bucket{
+			Id:                bucket.Id,
+			Name:              bucket.Name,
+			Description:       bucket.Description,
+			AllowedMimeTypes:  bucket.AllowedMimeTypes,
+			AllowedObjectSize: bucket.AllowedObjectSize,
+			IsPublic:          bucket.IsPublic,
+			CreatedAt:         bucket.CreatedAt,
+			UpdatedAt:         bucket.UpdatedAt,
+		},
+	}, nil
 }
 
-func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte) (*models.GeneralResponse, *errors.HttpError) {
+func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte) (*models.BucketResponse, *errors.HttpError) {
 	var bucketUpdate models.BucketUpdate
 
 	if id == "" {
@@ -130,6 +147,17 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte
 		if exists {
 			return nil, errors.NewBadRequestError("bucket with the name '" + bucketUpdate.Name + "' already exists")
 		}
+
+		err = s.objectStoreClient.RenameBucket(ctx, oldBucket.Name, bucketUpdate.Name)
+		if err != nil {
+			return nil, errors.NewInternalServerError("unable to rename bucket in object store")
+		}
+
+		err = s.databaseClient.UpdateObjectBucketName(ctx, oldBucket.Name, bucketUpdate.Name)
+		if err != nil {
+			return nil, errors.NewInternalServerError("unable to update bucket name in database")
+		}
+
 		oldBucket.Name = bucketUpdate.Name
 	}
 
@@ -153,7 +181,8 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte
 		oldBucket.IsPublic = bucketUpdate.IsPublic
 	}
 
-	*oldBucket.UpdatedAt = utils.GetTimeUnix()
+	updateAt := utils.GetTimeUnix()
+	oldBucket.UpdatedAt = &updateAt
 
 	newBucket := entities.Bucket{
 		Id:                oldBucket.Id,
@@ -171,10 +200,23 @@ func (s *BucketService) UpdateBucket(ctx context.Context, id string, body []byte
 		return nil, errors.NewInternalServerError("unable to update bucket")
 	}
 
-	return models.NewGeneralResponse(constants.StatusOK, "bucket updated successfully", newBucket), nil
+	return &models.BucketResponse{
+		Code:    constants.StatusOK,
+		Message: "bucket updated",
+		Bucket: models.Bucket{
+			Id:                newBucket.Id,
+			Name:              newBucket.Name,
+			Description:       newBucket.Description,
+			AllowedMimeTypes:  newBucket.AllowedMimeTypes,
+			AllowedObjectSize: newBucket.AllowedObjectSize,
+			IsPublic:          newBucket.IsPublic,
+			CreatedAt:         newBucket.CreatedAt,
+			UpdatedAt:         newBucket.UpdatedAt,
+		},
+	}, nil
 }
 
-func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError) {
+func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.BucketGeneralResponse, *errors.HttpError) {
 	if id == "" {
 		return nil, errors.NewBadRequestError("id cannot be empty")
 	}
@@ -192,15 +234,33 @@ func (s *BucketService) DeleteBucket(ctx context.Context, id string) (*models.Ge
 		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
 	}
 
-	err = s.databaseClient.DeleteBucket(ctx, id)
+	bucket, err := s.databaseClient.GetBucketById(ctx, id)
 	if err != nil {
-		return nil, errors.NewInternalServerError("unable to delete bucket")
+		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
 
-	return models.NewGeneralResponse(constants.StatusNoContent, "bucket deleted successfully", nil), nil
+	err = s.objectStoreClient.DeleteBucket(ctx, bucket.Name)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to delete bucket from object store")
+	}
+
+	err = s.databaseClient.DeleteObjectsByBucketId(ctx, bucket.Name)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to delete objects from database")
+	}
+
+	err = s.databaseClient.DeleteBucketById(ctx, bucket.Id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to delete bucket from database")
+	}
+
+	return &models.BucketGeneralResponse{
+		Code:    constants.StatusOK,
+		Message: "bucket deleted",
+	}, nil
 }
 
-func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.GeneralResponse, *errors.HttpError) {
+func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.BucketResponse, *errors.HttpError) {
 	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to check if bucket exists")
@@ -214,14 +274,76 @@ func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.G
 		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
 
-	return models.NewGeneralResponse(constants.StatusOK, "bucket retrieved successfully", bucket), nil
+	return &models.BucketResponse{
+		Code:    constants.StatusOK,
+		Message: "bucket retrieved successfully",
+		Bucket: models.Bucket{
+			Id:                bucket.Id,
+			Name:              bucket.Name,
+			Description:       bucket.Description,
+			AllowedMimeTypes:  bucket.AllowedMimeTypes,
+			AllowedObjectSize: bucket.AllowedObjectSize,
+			IsPublic:          bucket.IsPublic,
+			CreatedAt:         bucket.CreatedAt,
+			UpdatedAt:         bucket.UpdatedAt,
+		},
+	}, nil
 }
 
-func (s *BucketService) ListBuckets(ctx context.Context) (*models.GeneralResponse, *errors.HttpError) {
+func (s *BucketService) ListBuckets(ctx context.Context) (*models.BucketListResponse, *errors.HttpError) {
 	buckets, err := s.databaseClient.ListBuckets(ctx)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to get buckets")
 	}
 
-	return models.NewGeneralResponse(constants.StatusOK, "buckets retrieved successfully", buckets), nil
+	var bucketList models.BucketListResponse
+
+	if buckets != nil {
+		for _, bucket := range *buckets {
+			bucketList.Bucket = append(bucketList.Bucket, models.Bucket{
+				Id:                bucket.Id,
+				Name:              bucket.Name,
+				Description:       bucket.Description,
+				AllowedMimeTypes:  bucket.AllowedMimeTypes,
+				AllowedObjectSize: bucket.AllowedObjectSize,
+				IsPublic:          bucket.IsPublic,
+				CreatedAt:         bucket.CreatedAt,
+				UpdatedAt:         bucket.UpdatedAt,
+			})
+		}
+		bucketList.Code = constants.StatusOK
+		bucketList.Message = "buckets retrieved successfully"
+	}
+
+	return &bucketList, nil
+}
+
+func (s *BucketService) EmptyBucket(ctx context.Context, id string) (*models.BucketGeneralResponse, *errors.HttpError) {
+	exists, err := s.databaseClient.CheckIfBucketExistsById(ctx, id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to check if bucket exists")
+	}
+	if !exists {
+		return nil, errors.NewNotFoundError("bucket with the id '" + id + "' does not exist")
+	}
+
+	bucket, err := s.databaseClient.GetBucketById(ctx, id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to get bucket")
+	}
+
+	err = s.objectStoreClient.EmptyBucket(ctx, bucket.Name)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to empty bucket from object store")
+	}
+
+	err = s.databaseClient.DeleteObjectsByBucketId(ctx, bucket.Id)
+	if err != nil {
+		return nil, errors.NewInternalServerError("unable to delete objects from database")
+	}
+
+	return &models.BucketGeneralResponse{
+		Code:    constants.StatusOK,
+		Message: "bucket emptied successfully",
+	}, nil
 }
