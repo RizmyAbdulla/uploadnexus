@@ -9,6 +9,7 @@
 ## Feature Roadmap
 - [x] Pre-Signed File Upload 
 - [x] Pre-Signed File Download
+- [x] Ability to split a single S3 or (any S3 compatible) bucket into logical buckets using file keys
 - [ ] Resumable File uploads using [Tus](https://tus.io/)
 - [ ] Upload tracking for Pre singed Urls via a Job queue
 - [ ] Basic JWT based auth
