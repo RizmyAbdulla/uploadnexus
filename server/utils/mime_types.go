@@ -24,7 +24,7 @@ func ValidateMimeTypes(mimeTypes []string) (bool, error) {
 
 	for _, mimeType := range mimeTypes {
 		if mimeType == "*" || strings.HasSuffix(mimeType, "/*") {
-			continue // Wildcard allows any MIME type
+			continue
 		}
 		if !mimeTypePattern.MatchString(mimeType) {
 			return false, fmt.Errorf(`'%s' is an invalid mime type`, mimeType)

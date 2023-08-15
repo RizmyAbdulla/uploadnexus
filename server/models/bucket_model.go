@@ -34,9 +34,11 @@ type BucketResponse struct {
 }
 
 type BucketListResponse struct {
-	Code    int      `json:"code"`
-	Message string   `json:"message"`
-	Bucket  []Bucket `json:"buckets"`
+	Code      int      `json:"code"`
+	Message   string   `json:"message"`
+	Bucket    []Bucket `json:"buckets"`
+	Page      int      `json:"page"`
+	PageLimit int      `json:"page_limit"`
 }
 
 type BucketGeneralResponse struct {

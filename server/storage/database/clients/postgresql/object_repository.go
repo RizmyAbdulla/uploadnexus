@@ -204,19 +204,19 @@ func (c *DatabaseClient) GetObjectByBucketNameAndObjectName(ctx context.Context,
 	return &object, nil
 }
 
-func (c *DatabaseClient) ListObjectsByBucketID(ctx context.Context, bucketId string) (*[]entities.Object, error) {
+func (c *DatabaseClient) ListObjectsByBucketID(ctx context.Context, bucketId string, limit int, offset int) (*[]entities.Object, error) {
 	const Op errors.Op = "postgresql.ListObjectsByBucketID"
 
 	var objects []entities.Object
 
-	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = $1`, entities.ObjectCollection)
+	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = $1 LIMIT $2 OFFSET $3`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to prepare statement", err)
 	}
 
-	result, err := stmt.QueryContext(ctx, bucketId)
+	result, err := stmt.QueryContext(ctx, bucketId, limit, offset)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to get objects by bucket id", err)
 	}
@@ -238,19 +238,19 @@ func (c *DatabaseClient) ListObjectsByBucketID(ctx context.Context, bucketId str
 	return &objects, nil
 }
 
-func (c *DatabaseClient) ListObjectsByBucketName(ctx context.Context, bucketName string) (*[]entities.Object, error) {
+func (c *DatabaseClient) ListObjectsByBucketName(ctx context.Context, bucketName string, limit int, offset int) (*[]entities.Object, error) {
 	const Op errors.Op = "postgresql.ListObjectsByBucketName"
 
 	var objects []entities.Object
 
-	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = (SELECT id FROM %s WHERE name = $1)`, entities.ObjectCollection, entities.BucketCollection)
+	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s WHERE bucket = (SELECT id FROM %s WHERE name = $1) LIMIT $2 OFFSET $3`, entities.ObjectCollection, entities.BucketCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to prepare statement", err)
 	}
 
-	result, err := stmt.QueryContext(ctx, bucketName)
+	result, err := stmt.QueryContext(ctx, bucketName, limit, offset)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to get objects by bucket name", err)
 	}
@@ -272,19 +272,19 @@ func (c *DatabaseClient) ListObjectsByBucketName(ctx context.Context, bucketName
 	return &objects, nil
 }
 
-func (c *DatabaseClient) ListObjects(ctx context.Context) (*[]entities.Object, error) {
+func (c *DatabaseClient) ListObjects(ctx context.Context, limit int, offset int) (*[]entities.Object, error) {
 	const Op errors.Op = "postgresql.ListObjects"
 
 	var objects []entities.Object
 
-	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s`, entities.ObjectCollection)
+	query := fmt.Sprintf(`SELECT id, bucket, name, mime_type, size, upload_status, metadata, created_at, updated_at FROM %s LIMIT $1 OFFSET $2`, entities.ObjectCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to prepare statement", err)
 	}
 
-	result, err := stmt.QueryContext(ctx)
+	result, err := stmt.QueryContext(ctx, limit, offset)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to get objects", err)
 	}

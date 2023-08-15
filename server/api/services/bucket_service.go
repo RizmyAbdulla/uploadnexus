@@ -17,7 +17,7 @@ type IBucketService interface {
 	UpdateBucket(ctx context.Context, id string, body []byte) (*models.BucketResponse, *errors.HttpError)
 	DeleteBucket(ctx context.Context, id string) (*models.BucketGeneralResponse, *errors.HttpError)
 	GetBucketById(ctx context.Context, id string) (*models.BucketResponse, *errors.HttpError)
-	ListBuckets(ctx context.Context) (*models.BucketListResponse, *errors.HttpError)
+	ListBuckets(ctx context.Context, page int, pageSize int) (*models.BucketListResponse, *errors.HttpError)
 	EmptyBucket(ctx context.Context, id string) (*models.BucketGeneralResponse, *errors.HttpError)
 }
 
@@ -268,32 +268,45 @@ func (s *BucketService) GetBucketById(ctx context.Context, id string) (*models.B
 	}, nil
 }
 
-func (s *BucketService) ListBuckets(ctx context.Context) (*models.BucketListResponse, *errors.HttpError) {
+func (s *BucketService) ListBuckets(ctx context.Context, page int, pageSize int) (*models.BucketListResponse, *errors.HttpError) {
+	var err error
 	var bucketList models.BucketListResponse
 
-	buckets, err := s.databaseClient.ListBuckets(ctx)
+	page, pageSize, err = utils.ValidatePaging(page, pageSize)
+	if err != nil {
+		return nil, errors.NewBadRequestError(err.Error())
+	}
+
+	limit, offset, err := utils.TransformPaging(page, pageSize)
+	if err != nil {
+		return nil, errors.NewBadRequestError(err.Error())
+	}
+
+	buckets, err := s.databaseClient.ListBuckets(ctx, limit, offset)
 	if err != nil {
 		return nil, errors.NewInternalServerError("unable to get buckets")
 	}
 
-	if buckets != nil {
-		for _, bucket := range *buckets {
-			bucketList.Bucket = append(bucketList.Bucket, models.Bucket{
-				Id:                bucket.Id,
-				Name:              bucket.Name,
-				Description:       bucket.Description,
-				AllowedMimeTypes:  bucket.AllowedMimeTypes,
-				AllowedObjectSize: bucket.AllowedObjectSize,
-				IsPublic:          bucket.IsPublic,
-				CreatedAt:         bucket.CreatedAt,
-				UpdatedAt:         bucket.UpdatedAt,
-			})
-		}
-		bucketList.Code = constants.StatusOK
-		bucketList.Message = "buckets retrieved successfully"
-	} else {
-		return nil, errors.NewNotFoundError("no buckets found")
+	if len(*buckets) == 0 {
+		return nil, errors.NewNotFoundError("no buckets found in database")
 	}
+
+	for _, bucket := range *buckets {
+		bucketList.Bucket = append(bucketList.Bucket, models.Bucket{
+			Id:                bucket.Id,
+			Name:              bucket.Name,
+			Description:       bucket.Description,
+			AllowedMimeTypes:  bucket.AllowedMimeTypes,
+			AllowedObjectSize: bucket.AllowedObjectSize,
+			IsPublic:          bucket.IsPublic,
+			CreatedAt:         bucket.CreatedAt,
+			UpdatedAt:         bucket.UpdatedAt,
+		})
+	}
+	bucketList.Code = constants.StatusOK
+	bucketList.Message = "buckets retrieved successfully"
+	bucketList.Page = page
+	bucketList.PageLimit = pageSize
 
 	return &bucketList, nil
 }

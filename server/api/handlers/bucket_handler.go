@@ -85,7 +85,10 @@ func (h *BucketHandler) GetBucketById(ctx *fiber.Ctx) error {
 }
 
 func (h *BucketHandler) ListBuckets(ctx *fiber.Ctx) error {
-	response, err := h.bucketService.ListBuckets(ctx.Context())
+	page := ctx.QueryInt("page")
+	pageLimit := ctx.QueryInt("page_size")
+
+	response, err := h.bucketService.ListBuckets(ctx.Context(), page, pageLimit)
 	if err != nil {
 		return ctx.Status(err.Code).JSON(err)
 	}

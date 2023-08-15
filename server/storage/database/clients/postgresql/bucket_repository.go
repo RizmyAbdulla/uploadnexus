@@ -159,19 +159,19 @@ func (c *DatabaseClient) GetBucketByName(ctx context.Context, name string) (*ent
 	return &bucket, nil
 }
 
-func (c *DatabaseClient) ListBuckets(ctx context.Context) (*[]entities.Bucket, error) {
+func (c *DatabaseClient) ListBuckets(ctx context.Context, limit int, offset int) (*[]entities.Bucket, error) {
 	const Op errors.Op = "postgresql.ListBuckets"
 
 	var buckets []entities.Bucket
 
-	query := fmt.Sprintf(`SELECT id, name, description, allowed_mime_types, allowed_object_size, is_public, created_at, updated_at FROM %s`, entities.BucketCollection)
+	query := fmt.Sprintf(`SELECT id, name, description, allowed_mime_types, allowed_object_size, is_public, created_at, updated_at FROM %s LIMIT $1 OFFSET $2`, entities.BucketCollection)
 
 	stmt, err := c.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to prepare statement", err)
 	}
 
-	rows, err := stmt.QueryContext(ctx)
+	rows, err := stmt.QueryContext(ctx, limit, offset)
 	if err != nil {
 		return nil, errors.NewError(Op, "failed to get buckets", err)
 	}

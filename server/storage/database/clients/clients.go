@@ -13,7 +13,7 @@ type DatabaseClient interface {
 	GetBucketByID(ctx context.Context, id string) (*entities.Bucket, error)
 	BucketExistsByName(ctx context.Context, name string) (bool, error)
 	GetBucketByName(ctx context.Context, name string) (*entities.Bucket, error)
-	ListBuckets(ctx context.Context) (*[]entities.Bucket, error)
+	ListBuckets(ctx context.Context, limit int, offset int) (*[]entities.Bucket, error)
 
 	CreateObject(ctx context.Context, object entities.Object) error
 	UpdateObject(ctx context.Context, object entities.Object) error
@@ -24,7 +24,7 @@ type DatabaseClient interface {
 	GetObjectByID(ctx context.Context, id string) (*entities.Object, error)
 	ObjectExistsByBucketNameAndObjectName(ctx context.Context, bucketName string, objectName string) (bool, error)
 	GetObjectByBucketNameAndObjectName(ctx context.Context, bucketName string, objectName string) (*entities.Object, error)
-	ListObjectsByBucketID(ctx context.Context, bucketId string) (*[]entities.Object, error)
-	ListObjectsByBucketName(ctx context.Context, bucketName string) (*[]entities.Object, error)
-	ListObjects(ctx context.Context) (*[]entities.Object, error)
+	ListObjectsByBucketID(ctx context.Context, bucketId string, limit int, offset int) (*[]entities.Object, error)
+	ListObjectsByBucketName(ctx context.Context, bucketName string, limit int, offset int) (*[]entities.Object, error)
+	ListObjects(ctx context.Context, limit int, offset int) (*[]entities.Object, error)
 }
