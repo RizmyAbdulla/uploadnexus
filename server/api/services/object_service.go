@@ -78,6 +78,11 @@ func (s *ObjectService) CreatePreSignedPutObject(ctx context.Context, bucketName
 		return nil, errors.NewInternalServerError("unable to get bucket")
 	}
 
+	isAllowedMimeType, err := utils.ValidateAllowedMimeTypes(preSignedObjectCreate.MimeType, *bucket.AllowedMimeTypes)
+	if !isAllowedMimeType {
+		return nil, errors.NewBadRequestError(err.Error())
+	}
+
 	expiry := envs.EnvStoreInstance.GetEnv().PresignedPutObjectExpiration
 
 	presignedUrl, err := s.objectStoreClient.CreatePresignedPutObject(ctx, bucketName, preSignedObjectCreate.ObjectName, expiry)
